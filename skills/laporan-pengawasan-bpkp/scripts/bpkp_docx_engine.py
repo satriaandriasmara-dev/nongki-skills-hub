@@ -241,17 +241,41 @@ def setup_numbering_infrastructure(doc: _Doc) -> None:
         elem.append(num)
 
 
+def _max_existing_num_id(doc: _Doc) -> int:
+    """Ambil numId terbesar yang sudah dipakai pada numbering part dokumen ini."""
+    biggest = 0
+    try:
+        for n in doc.part.numbering_part.element.findall(qn('w:num')):
+            try:
+                biggest = max(biggest, int(n.get(qn('w:numId'))))
+            except (TypeError, ValueError):
+                continue
+    except Exception:
+        pass
+    return biggest
+
+
 def get_new_numbering_instance(
     doc: _Doc, restart_levels: Optional[List[int]] = None, start_val: int = 1
 ) -> int:
     """
     Buat instance <w:num> baru yang menunjuk ke master abstractNum.
     Mengembalikan numId baru.
+
+    numId diambil dari counter global, tetapi dijamin tidak bentrok dengan
+    numId yang sudah ada di numbering part dokumen ini (penting untuk dokumen
+    hasil clone_from_template, yang mewarisi numbering.xml template).
     """
     global _next_num_id
     np = doc.part.numbering_part
     nid = _next_num_id
     _next_num_id += 1
+    # Hindari bentrok numId dengan dokumen yang di-clone atau dengan
+    # instance yang dibuat sebelumnya pada dokumen yang sama.
+    taken = _max_existing_num_id(doc)
+    while nid <= taken or _has_num(doc, nid):
+        nid = taken + 1 if nid <= taken else nid + 1
+        taken = max(taken, nid)
 
     if restart_levels:
         num_el = _build_num_with_override(nid, _ABSTRACT_NUM_ID, restart_levels, start_val)
@@ -443,6 +467,10 @@ def create_document() -> _Doc:
     reset_numbering_state()
 
     doc = Document()
+    # Sinkronkan counter global dengan isi numbering part dokumen ini agar
+    # numId yang dibuat tidak bentrok dengan instance sebelumnya.
+    global _next_num_id
+    _next_num_id = max(_next_num_id, _max_existing_num_id(doc) + 1)
     for s in doc.sections:
         s.page_width = Cm(21.0)
         s.page_height = Cm(29.7)
@@ -685,7 +713,7 @@ def add_topic_heading(doc, text, num_id, ilvl=1, space_before=Pt(12), space_afte
 
 
 def add_numbered_item(doc, text, num_id, ilvl=2, bold=False,
-                      space_before=Pt(0), space_after=Pt(6)):
+                      space_before=Pt(0), space_after=Pt(6), parse_markdown=True):
     """Paragraf bernomor pada ilvl tertentu."""
     p = doc.add_paragraph()
     p.paragraph_format.space_before = space_before
@@ -693,8 +721,12 @@ def add_numbered_item(doc, text, num_id, ilvl=2, bold=False,
     p.paragraph_format.line_spacing = 1.15
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     _attach_numbering(p, num_id, ilvl)
-    r = p.add_run(text)
-    _apply_font(r, bold=bold, size=Pt(12))
+    if parse_markdown and ('*' in text or '<i>' in text or '<b>' in text or '<em>' in text) \
+            and not bold:
+        add_runs_with_markdown(p, text, default_bold=bold, size=Pt(12))
+    else:
+        r = p.add_run(text)
+        _apply_font(r, bold=bold, size=Pt(12))
     return p
 
 
@@ -742,7 +774,7 @@ def add_subheading(doc, prefix, text, num_id=None, ilvl=2, as_heading: bool = Tr
         return p
 
 
-def add_body_sub(doc, text, num_id=None, ilvl=None):
+def add_body_sub(doc, text, num_id=None, ilvl=None, parse_markdown=True):
     """Paragraf isi di bawah subheading."""
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(0)
@@ -757,7 +789,10 @@ def add_body_sub(doc, text, num_id=None, ilvl=None):
         p.paragraph_format.left_indent = Inches(0.35)
         p.paragraph_format.first_line_indent = Inches(0.0)
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    add_run(p, text, bold=False, color=BLACK)
+    if parse_markdown and ('*' in text or '<i>' in text or '<b>' in text or '<em>' in text):
+        add_runs_with_markdown(p, text, default_bold=False, color=BLACK, size=Pt(12))
+    else:
+        add_run(p, text, bold=False, color=BLACK)
     return p
 
 
@@ -842,7 +877,8 @@ def add_detail_item(doc, item_prefix, item_text, bold_title="", num_id=None, ilv
         return p
 
 
-def add_criteria(doc, criteria_text="(.)", num_id=None, ilvl=None):
+def add_criteria(doc, criteria_text="(.)", num_id=None, ilvl=None,
+                  parse_markdown=True):
     """Paragraf kriteria (merah)."""
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(0)
@@ -856,11 +892,15 @@ def add_criteria(doc, criteria_text="(.)", num_id=None, ilvl=None):
         p.paragraph_format.left_indent = Inches(0.35)
     p.paragraph_format.first_line_indent = Inches(0.0)
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    add_run(p, criteria_text, bold=False, color=RED)
+    if parse_markdown and ('*' in criteria_text or '<i>' in criteria_text
+                           or '<b>' in criteria_text or '<em>' in criteria_text):
+        add_runs_with_markdown(p, criteria_text, default_bold=False, color=RED, size=Pt(12))
+    else:
+        add_run(p, criteria_text, bold=False, color=RED)
     return p
 
 
-def add_cause(doc, cause_text, num_id=None, ilvl=None):
+def add_cause(doc, cause_text, num_id=None, ilvl=None, parse_markdown=True):
     """Paragraf sebab."""
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(0)
@@ -875,11 +915,15 @@ def add_cause(doc, cause_text, num_id=None, ilvl=None):
     p.paragraph_format.first_line_indent = Inches(0.0)
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     add_run(p, "Kondisi tersebut disebabkan oleh ", bold=False, color=BLACK)
-    add_run(p, cause_text, bold=False, color=BLACK)
+    if parse_markdown and ('*' in cause_text or '<i>' in cause_text
+                           or '<b>' in cause_text or '<em>' in cause_text):
+        add_runs_with_markdown(p, cause_text, default_bold=False, color=BLACK, size=Pt(12))
+    else:
+        add_run(p, cause_text, bold=False, color=BLACK)
     return p
 
 
-def add_effect(doc, effect_text, num_id=None, ilvl=None):
+def add_effect(doc, effect_text, num_id=None, ilvl=None, parse_markdown=True):
     """Paragraf akibat."""
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(0)
@@ -894,7 +938,11 @@ def add_effect(doc, effect_text, num_id=None, ilvl=None):
     p.paragraph_format.first_line_indent = Inches(0.0)
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     add_run(p, "Akibatnya, ", bold=False, color=BLACK)
-    add_run(p, effect_text, bold=False, color=BLACK)
+    if parse_markdown and ('*' in effect_text or '<i>' in effect_text
+                           or '<b>' in effect_text or '<em>' in effect_text):
+        add_runs_with_markdown(p, effect_text, default_bold=False, color=BLACK, size=Pt(12))
+    else:
+        add_run(p, effect_text, bold=False, color=BLACK)
     return p
 
 
@@ -955,10 +1003,14 @@ def clean_cell_p(p):
     p.paragraph_format.first_line_indent = Inches(0)
     p.paragraph_format.right_indent = Inches(0)
     pPr = p._p.get_or_add_pPr()
+    # Hapus setiap elemen <w:ind> yang ada (termasuk yang diwarisi dari style)
+    # lalu tulis ulang atribut nol secara eksplisit.
     for child in list(pPr):
-        if child.tag.endswith('ind'):
+        if child.tag == qn('w:ind'):
             pPr.remove(child)
-    pPr.append(parse_xml(f'<w:ind {nsdecls("w")} w:left="0" w:right="0" w:firstLine="0"/>'))
+    pPr.append(parse_xml(
+        f'<w:ind {nsdecls("w")} w:left="0" w:right="0" w:firstLine="0" w:hanging="0"/>'
+    ))
 
 
 def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
@@ -1061,7 +1113,7 @@ def add_table_bordered(doc, rows, cols, col_widths=None, header_rows=1,
     for r_idx, row in enumerate(table.rows):
         row_cells = []
         for c_idx, cell in enumerate(row.cells):
-            set_cell_margins(cell, top=60, bottom=60, left=100, right=100)
+            set_cell_margins(cell, top=100, bottom=100, left=150, right=150)
             if r_idx < header_rows and shade_header:
                 set_cell_shading(cell, shade_header)
             p = cell.paragraphs[0]
@@ -1224,7 +1276,7 @@ def add_page_break(doc):
 
 def add_cover_page(doc, logo_path: str = "",
                     lembaga: str = "BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN",
-                    unit_kerja: str = "PERWAKILAN PROVINSI PAPUA TENGAH",
+                    unit_kerja: str = "[NAMA UNIT KERJA]",
                     judul: str = "LAPORAN HASIL EVALUASI",
                     subjudul: str = "ATAS TATA KELOLA KETAHANAN PANGAN",
                     tahun: str = "TAHUN 2026",
@@ -1233,9 +1285,9 @@ def add_cover_page(doc, logo_path: str = "",
     Bangun halaman cover (sampul) laporan BPKP standar.
 
     Layout:
-      - Logo BPKP (center, 4.2 cm)
-      - Nama Lembaga (bold 14pt, center)
-      - Unit Kerja (bold 14pt, center)
+      - Logo BPKP (center, 3,4 cm x 1,7 cm - Perban 4/2026)
+      - Nama Lembaga (bold 13pt, center)
+      - Unit Kerja (bold 12pt, center)
       - Spasi tengah (3x paragraf kosong)
       - Judul laporan (bold 13pt, center)
       - Subjudul (bold 13pt, center)
@@ -1258,13 +1310,13 @@ def add_cover_page(doc, logo_path: str = "",
         p_logo.paragraph_format.space_before = Pt(24)
         p_logo.paragraph_format.space_after = Pt(12)
         r_logo = p_logo.add_run()
-        r_logo.add_picture(logo_path, width=Cm(4.2))
+        r_logo.add_picture(logo_path, width=Cm(3.4), height=Cm(1.7))
 
     # Header Nama Instansi
     add_p(doc, lembaga, space_before=Pt(0), space_after=Pt(2),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
     add_p(doc, unit_kerja, space_before=Pt(0), space_after=Pt(48),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(12))
 
     # Spasi Tengah
     for _ in range(3):
@@ -1283,7 +1335,9 @@ def add_cover_page(doc, logo_path: str = "",
         add_p(doc, "", space_after=Pt(12), align=WD_ALIGN_PARAGRAPH.CENTER)
 
     # Tabel NOMOR dan TANGGAL (borderless)
-    if nomor or tanggal:
+    # Selalu dibuat, bahkan jika nilai kosong, supaya tersedia tempat
+    # placeholder yang dapat diisi pengguna.
+    if True:
         tbl = doc.add_table(rows=2, cols=3)
         tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
         tbl.autofit = False
@@ -1339,7 +1393,18 @@ def add_daftar_isi(doc, items: list):
     add_p(doc, "Halaman", space_after=Pt(12),
           align=WD_ALIGN_PARAGRAPH.RIGHT, italic=True)
 
-    for title, page in items:
+    normalized = []
+    for item in items:
+        if isinstance(item, (list, tuple)) and len(item) >= 2:
+            normalized.append((str(item[0]), str(item[1])))
+        elif isinstance(item, str):
+            normalized.append((item, ""))
+        else:
+            raise ValueError(
+                "add_daftar_isi: setiap item harus (title, page) atau string judul"
+            )
+
+    for title, page in normalized:
         p = doc.add_paragraph()
         p.paragraph_format.space_before = Pt(0)
         p.paragraph_format.space_after = Pt(4)
@@ -1435,12 +1500,22 @@ def add_table_with_subheader(doc, headers: list, sub_headers: list,
 # KOP SURAT (LETTERHEAD) TABEL RESMI BPKP
 # =====================================================================
 
+def _set_table_grid(table, widths):
+    """Tulis ulang <w:tblGrid> sesuai lebar kolom yang diberikan (satu kali per kolom)."""
+    grid = table._tbl.tblGrid
+    for child in list(grid):
+        grid.remove(child)
+    for w in widths:
+        col = parse_xml(f'<w:gridCol {nsdecls("w")} w:w="{int(w.twips)}"/>')
+        grid.append(col)
+
+
 def add_kop_surat_table(doc, logo_path: str = "",
                         lembaga: str = "BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN",
-                        unit_kerja: str = "PERWAKILAN PROVINSI PAPUA TENGAH",
-                        alamat: str = "Jalan Sam Ratulangi, Kelurahan Oyehe, Distrik Nabire",
-                        wilayah: str = "Kabupaten Nabire, Provinsi Papua Tengah, Kode Pos: 98816",
-                        kontak: str = "Email: papua.tengah@bpkp.go.id, Website: www.bpkp.go.id/papua.tengah"):
+                        unit_kerja: str = "[NAMA UNIT KERJA]",
+                        alamat: str = "[ALAMAT LENGKAP UNIT KERJA]",
+                        wilayah: str = "[WILAYAH, PROVINSI, KODE POS]",
+                        kontak: str = "[Email dan Website unit kerja]"):
     """
     Tambahkan kop surat (letterhead) BPKP versi tabel resmi dengan logo.
 
@@ -1471,6 +1546,10 @@ def add_kop_surat_table(doc, logo_path: str = "",
         f'</w:tblBorders>'
     )
     tblPr.append(borders)
+
+    # Sinkronkan tblGrid dengan lebar kolom yang sebenarnya agar lebar tabel
+    # tidak melebihi area teks dan marker ruler sejajar dengan grid.
+    _set_table_grid(table, [Cm(3.06), Cm(13.34)])
 
     # Kolom kiri: Logo
     cell_logo = table.cell(0, 0)
@@ -1620,6 +1699,9 @@ def clone_from_template(template_path: str) -> _Doc:
     for p in list(doc.paragraphs):
         p_elem = p._p
         p_elem.getparent().remove(p_elem)
+    reset_numbering_state()
+    global _next_num_id
+    _next_num_id = max(_next_num_id, _max_existing_num_id(doc) + 1)
     return doc
 
 

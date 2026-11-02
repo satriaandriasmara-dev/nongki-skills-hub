@@ -216,24 +216,24 @@ def build_temuan_5c(doc, temuan: dict, num_id: int):
     add_subheading(doc, "a.", "Kondisi", num_id=num_id, ilvl=2)
     add_body_sub(doc, kondisi, num_id=num_id, ilvl=2)
 
-    # b. Kriteria
+    # b. Kriteria (teks merah via add_criteria)
     add_subheading(doc, "b.", "Kriteria", num_id=num_id, ilvl=2)
-    add_body_sub(doc, kriteria, num_id=num_id, ilvl=2)
+    add_criteria(doc, kriteria, num_id=num_id, ilvl=2)
 
-    # c. Sebab
+    # c. Sebab (awalan baku via add_cause)
     add_subheading(doc, "c.", "Sebab", num_id=num_id, ilvl=2)
-    add_body_sub(doc, sebab, num_id=num_id, ilvl=2)
+    add_cause(doc, sebab, num_id=num_id, ilvl=2)
 
-    # d. Akibat
+    # d. Akibat (awalan baku via add_effect)
     add_subheading(doc, "d.", "Akibat", num_id=num_id, ilvl=2)
-    add_body_sub(doc, akibat, num_id=num_id, ilvl=2)
+    add_effect(doc, akibat, num_id=num_id, ilvl=2)
 
-    # e. Rekomendasi
+    # e. Rekomendasi (ilvl=3 -> format 1), 2), ...)
     add_subheading(doc, "e.", "Rekomendasi", num_id=num_id, ilvl=2)
     if isinstance(rekomendasi, str):
-        add_recommendation_block(doc, rekomendasi, num_id=num_id, ilvl=4)
+        add_recommendation_block(doc, rekomendasi, num_id=num_id, ilvl=3)
     elif isinstance(rekomendasi, list):
-        add_recommendation_block(doc, rekomendasi, num_id=num_id, ilvl=4)
+        add_recommendation_block(doc, rekomendasi, num_id=num_id, ilvl=3)
 
 
 print("lhp_builder.py loaded - BPKP LHP/LHE builder template ready.")
