@@ -23,24 +23,36 @@ TENTANG
 ### Format 2: Dengan Kode Jenis (Umum)
 Untuk naskah dinas selain Peraturan/Instruksi/Surat Edaran:
 ```
-[kode keamanan] / [kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
+[kode klasifikasi arsip] / [kode klasifikasi keamanan] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
+```
+Kode klasifikasi keamanan diletakkan **setelah** kode klasifikasi arsip (Peraturan 4/2026 Bagian II.B.b). Untuk surat dinas berkategori **Biasa**, segmen tersebut **dikosongkan** -- tidak diisi kode apa pun. Contoh: `OT.01 / / S-20 / PW20/2 / 2026`.
+
+Contoh resmi penomoran (Peraturan 4/2026 Bagian II.B.2):
+```
+OT.00/KEP-23/K/SU/2026          # Kepala, konsep Sekretaris Utama
+OT.00/KEP-32/SU/01/2026         # Sekretaris Utama, konsep Biro MKKOTL
+OT.00/S-123/SU01/3/2026         # Kepala Biro MKKOTL, konsep Koordinator Org & Tata Laksana
+OT.00/NOTULA-35/SU01.3/2026     # Koordinator Org & Tata Laksana (tanpa kode konseptor)
+PL.02.01/PRJ-123/SU05.3/2026    # PPK Bagian Rumah Tangga
+PL.02.01/PRJ-123/PW10.1/2026    # PPK pada Perwakilan BPKP Provinsi Jawa Barat
 ```
 
-Contoh riil naskah pengawasan BPKP di lapangan:
-1. **Surat Tugas (ST):** `PE.09.02/ST-314/PW36/2/2026`
-   - `PE.09.02`: Kode klasifikasi pengawasan bidang pangan/IPP
-   - `ST-314`: Jenis Surat Tugas dengan nomor urut 314
-   - `PW36`: Kode Kantor Perwakilan BPKP Provinsi Papua Tengah
-   - `2`: Kode Bidang (IPP / Akuntabilitas Pemerintah Daerah)
-   - `2026`: Tahun anggaran pelaksanaan tugas
-2. **Laporan Hasil Pengawasan / Evaluasi (LHP):** `PE.09.03/LHP-314/PW36/2/2026`
-3. **Nota Dinas Internal Kantor Pusat:** `HO-01.02/ND-001/SU 01 1/2026`
+Contoh penomoran naskah pengawasan (kode klasifikasi arsip dan kode konseptor berasal dari unit kerja masing-masing; **tidak ditetapkan oleh peraturan**):
+```
+PE.09.02/ST-314/PW34/2/2026
+PE.09.03/LHP-314/PW34/2/2026
+```
 
-### Kode Keamanan (Khusus Surat Dinas)
+> [!warning] Verifikasi kode unit
+> Kode unit (mis. `PW34` untuk Kantor Perwakilan BPKP Provinsi Papua Tengah) ditetapkan melalui petunjuk teknis terpisah oleh Kepala. **Selalu verifikasi kode unit ke `assets/unit_profiles.json`**, jangan menyalin dari contoh di dokumen -- contoh pada skill ini bisa tidak sinkron dengan daftar resmi.
+
+### Kode Klasifikasi Keamanan (Khusus Surat Dinas)
 - `SR` : Sangat Rahasia
 - `R`  : Rahasia
 - `T`  : Terbatas
-- `S`  : Biasa (tanpa kode di nomor surat)
+- **Biasa**: **tanpa kode** pada nomor naskah. Tulis "Biasa" pada baris sifat surat.
+
+Penentuan kategori klasifikasi keamanan mengacu pada ketentuan kearsipan yang berlaku di lingkungan BPKP.
 
 ### Pengecualian Penomoran
 - **Tanpa kode jenis**: Peraturan, Instruksi, Surat Edaran (Format 1).
@@ -119,30 +131,45 @@ Pencatatan naskah dalam buku agenda elektronik dikelompokkan per jenis Naskah Di
 
 ## 4. Kop Naskah Dinas Resmi (Unit Pusat & Perwakilan)
 
-Kop surat naskah dinas resmi memuat lambang negara/logo BPKP dan identitas unit kerja:
-- **Struktur Kop 2 Kolom:**
-  - **Kolom Kiri (Lebar ~2,5 cm):** Logo BPKP berwarna proporsional (panjang 3,4 cm, tinggi 1,7 cm).
-  - **Kolom Kanan (Lebar ~13,5–14 cm):** Teks lembaga resmi:
-    - Baris 1: `BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN` (Arial 11 pt Bold)
-    - Baris 2: `PERWAKILAN PROVINSI [NAMA PROVINSI]` (Arial 12 pt Bold)
-    - Baris 3: `Jalan [Alamat Lengkap Kantor, Kode Pos]` (Arial 9 pt Regular)
-    - Baris 4: `Telepon: [...], Faksimile: [...], Email: [...]@bpkp.go.id, Website: www.bpkp.go.id` (Arial 9 pt Regular)
-- **Garis Pemisah Kop:** Garis horizontal solid hitam memanjang selebar margin naskah.
+Peraturan 4/2026 BAB II.A membedakan **dua varian kop**. Jangan menerapkan satu varian untuk semua naskah.
+
+### 4.1 Kop Jabatan (Logo tanpa Alamat)
+Kop jabatan menunjukkan nama jabatan Kepala/wakil kepala dan **hanya dipakai untuk naskah yang ditandatangani Kepala/wakil kepala atas nama Kepala**.
+- **Logo BPKP berwarna** diletakkan **di atas, simetris**, ukuran **panjang 34 mm x tinggi 17 mm** (rasio 2:1), paling kurang 10 mm dari tepi atas kertas.
+- `BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN` -- **Arial 13 pt Bold**, seluruhnya huruf kapital, diletakkan simetris di bawah logo.
+- Nama unit kerja -- **Arial 12 pt Bold**, seluruhnya huruf kapital, di bawah nama lembaga.
+
+### 4.2 Kop dengan Logo dan Alamat
+Dipakai untuk **Naskah Dinas arahan bersifat penugasan, Naskah Dinas korespondensi, dan Naskah Dinas khusus**.
+- **Logo BPKP** di **bagian atas sebelah kiri**, simetris, paling kurang 10 mm dari tepi atas kertas. Ukuran **panjang 32 mm x tinggi 16 mm** (rasio 2:1).
+- `BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN` -- **Arial 12 pt Bold**, kapital, diletakkan **samping kanan logo**.
+- Nama unit kerja -- **Arial 12 pt Bold**, kapital, di bawah nama lembaga.
+- Alamat lengkap, telepon, faksimile, email, dan website (bila diperlukan) -- **Arial 9 sampai 11 pt**, kapital di setiap awal kata, di bawah nama unit kerja.
+- **Garis penutup:** garis tebal tunggal ketebalan **2,25 pt**, mulai dari batas margin kiri **30 mm** sampai batas margin kanan **20 mm**.
 
 ---
 
 ## 5. Standar Format Dokumen Microsoft Word (`docx`)
 
-### A. Ukuran Kertas & Margin
+### A. Ukuran Kertas & Ruang Tepi (Margin)
 - **Kertas:** A4 (21,0 cm x 29,7 cm)
-- **Margin Kiri:** 3,0 cm (1.18", ruang jilid)
-- **Margin Atas, Kanan, Bawah:** 2,0 cm (0.79")
+- **Ruang tepi bersifat fleksibel** dan paling kurang (Peraturan 4/2026 Bagian II.E):
+
+  | Tepi | Nilai |
+  |---|---|
+  | Atas | 10 mm bila memakai kop Naskah Dinas; **paling kurang 20 mm** tanpa kop atau pada halaman berikutnya |
+  | Bawah | **paling kurang 25 mm** |
+  | Kiri | **paling kurang 30 mm** (media rekam kertas); **paling kurang 20 mm** (media rekam elektronik) |
+  | Kanan | **paling kurang 20 mm** |
+
+  Penentuan akhir menyesuaikan kondisi isi naskah dengan memperhatikan keserasian dan estetika.
 
 ### B. Tipografi & Spasi
-- **Font Utama:** **Arial** (100% konsisten pada semua komponen dokumen)
-- **Line Spacing:** 1.15 line pitch
-- **Space After Paragraph:** 6 pt (Space Before: 0 pt, kecuali Sub-heading: Before 8 pt)
-- **Perataan:** 100% **Justified (Rata Kiri-Kanan)**
+- **Jenis huruf:** **Arial ukuran 11 atau 12 pt**. Untuk naskah berupa **produk hukum** (peraturan, instruksi, surat edaran, keputusan): **Bookman Old Style ukuran 12 pt**.
+- **Jarak spasi:** tidak ditetapkan angka baku oleh peraturan. Jarak antara kop surat dengan kepala Naskah Dinas: line spacing 1 dengan 2 kali enter; jarak antara bab dan judul: line spacing 1 dengan 2 kali enter; jarak antara judul dan subjudul: line spacing 1 dengan 3 enter; jarak antara subjudul dan uraian: line spacing 1 dengan 2 kali enter; jarak masing-masing baris disesuaikan dengan keperluan.
+- **Preset teknis proyek** (umum dipakai, bukan angka wajib peraturan): line spacing 1.15 (`w:line="276"`), Space After 6 pt (`w:after="120"`), Space Before 0 pt (sub-heading 8 pt).
+- **Perataan:** 100% **Justified (Rata Kiri-Kanan)**.
+- **Kata penyambung:** hanya pada Naskah Dinas peraturan dengan media rekam kertas, ditulis di sudut kanan bawah halaman dengan urutan kata penyambung + tiga titik. **Tidak dicantumkan** pada media rekam elektronik.
 
 ### C. Hierarki Indentasi & Tab Stops (Anti-Bocor / Hanging Indent)
 - **Level 1 (Topik/Bab):** Left `0.00"`, First Line `0.00"`, Bold 12 pt.

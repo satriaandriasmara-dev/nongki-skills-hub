@@ -279,7 +279,8 @@ def add_kop_surat_table(doc, logo_path: str = "",
         logo_path = get_default_logo(variant="jpg")
     if logo_path and os.path.exists(logo_path):
         r_klogo = p_klogo.add_run()
-        r_klogo.add_picture(logo_path, width=Cm(2.9))
+        # Kop Jabatan: logo 34x17 mm; Kop dengan alamat: logo 32x16 mm (Perban 4/2026 BAB II.A)
+        r_klogo.add_picture(logo_path, width=Cm(3.2), height=Cm(1.6))
 
     # Kolom kanan: Teks instansi
     cell_ktxt = table.cell(0, 1)

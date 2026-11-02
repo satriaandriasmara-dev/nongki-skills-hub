@@ -234,7 +234,8 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
     p_logo.paragraph_format.space_after = Pt(4)
     if os.path.exists(logo_path):
         run_logo = p_logo.add_run()
-        run_logo.add_picture(logo_path, width=Cm(2.6))
+        # Kop dengan logo dan alamat: logo 32 x 16 mm (Perban 4/2026 BAB II.A.b.1)
+        run_logo.add_picture(logo_path, width=Cm(3.2), height=Cm(1.6))
 
     # Sel Kanan: Teks Instansi Resmi
     cell_text = table.cell(0, 1)

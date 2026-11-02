@@ -437,7 +437,7 @@ Setelah substansi final, lakukan dua tahap secara berurutan:
 
 ## 11. Ketentuan Tata Naskah Dinas untuk Laporan (Peraturan BPKP 4/2026)
 
-Bagian ini built-in dari **Peraturan BPKP Nomor 4 Tahun 2026 tentang Tata Naskah Dinas** (BAB V-C.5 Laporan, BAB III Pejabat Penanda Tangan, BAB IV Pengamanan, BAB II Pembuatan). Menggantikan ketentuan lama dari Perban 4/2022 (dicabut pada saat Peraturan 4/2026 mulai berlaku). Berlaku untuk semua laporan yang dihasilkan dalam penugasan pengawasan.
+Bagian ini built-in dari **Peraturan BPKP Nomor 4 Tahun 2026 tentang Tata Naskah Dinas** (BAB V-C.5 Laporan, BAB III Pejabat Penanda Tangan, BAB IV Pengamanan, BAB II Pembuatan). Menggantikan ketentuan lama dari Perban 4/2022 (dicabut pada saat Peraturan 4/2026 mulai berlaku). Berlaku sebagai ketentuan tata naskah dinas laporan sepanjang tidak diatur khusus oleh pedoman atau kebijakan pelaksanaan unit kerja.
 
 > [!note] Perubahan Pokok pada Laporan (Perban 4/2022 → Peraturan 4/2026)
 > - **Struktur**: Laporan kini diatur di **BAB V-C.5** (bukan Lampiran BAB II), tergabung dalam Naskah Dinas Khusus.
@@ -536,7 +536,7 @@ Format nomor mengikuti pola umum TND: `[kode keamanan]/[kode klasifikasi arsip]/
 
 ### 11.8 Unsur Pokok Naskah Dinas (untuk laporan bentuk surat)
 
-Kop naskah dinas; nomor; lampiran; hal/perihal; tanggal; alamat tujuan; salam pembuka; isi (pembuka--inti--penutup); salam penutup; nama jabatan penanda tangan; nama pejabat; pangkat dan NIP; tembusan (bila ada); tanda tangan dan nama terang; nomor halaman; lampiran.
+Kop naskah dinas; nomor; lampiran; hal/perihal; tanggal; alamat tujuan; salam pembuka; isi (pembuka--inti--penutup); salam penutup; nama jabatan penanda tangan; nama pejabat (tanpa gelar dan NIP, sesuai Peraturan 4/2026); tembusan (bila ada); tanda tangan dan nama terang; nomor halaman; lampiran.
 
 ---
 
@@ -545,8 +545,8 @@ Kop naskah dinas; nomor; lampiran; hal/perihal; tanggal; alamat tujuan; salam pe
 Berdasarkan praktik terbaik dan standardisasi penyusunan laporan pengawasan (LHE/LHP) BPKP, berikut adalah aturan teknis formatting, hierarki indentasi, tabel, dan tipografi Word (docx) yang wajib dipatuhi:
 
 ### 12.1 Pengaturan Halaman & Tipografi
-- **Ukuran Kertas & Margin:** Kertas A4 (21,0 cm x 29,7 cm). Margin Kiri: 3,0 cm (1.18", ruang jilid); Margin Atas, Kanan, dan Bawah: 2,0 cm (0.79").
-- **Font:** Wajib menggunakan font **Arial** 100% konsisten di seluruh elemen (heading, paragraf, tabel, nomor, header, footer). Pada OpenXML Word pastikan seluruh *runs* menyertakan:
+- **Ukuran Kertas & Ruang Tepi:** Kertas A4 (21,0 cm x 29,7 cm). Per Peraturan BPKP 4/2026 Bagian II.E, ruang tepi fleksibel dengan batas minimum: atas 10 mm (berkop) atau paling kurang 20 mm (tanpa kop); bawah paling kurang 25 mm; kiri paling kurang 30 mm (kertas) atau 20 mm (elektronik); kanan paling kurang 20 mm. Preset teknis template BPKP yang lazim: kiri 3,0 cm, atas/kanan/bawah 2,0 cm.
+- **Font:** Per Peraturan 4/2026 Bagian II.D.2, Naskah Dinas umumnya Arial 11 atau 12 pt; produk hukum memakai Bookman Old Style 12 pt. Untuk laporan pengawasan gunakan Arial di seluruh elemen (heading, paragraf, tabel, nomor, header, footer). Pada OpenXML Word pastikan seluruh *runs* menyertakan:
   `<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>`
 - **Ukuran Font:**
   - Judul Cover Utama: Arial 14–16 pt Bold
@@ -696,7 +696,7 @@ Hindari nilai pembulatan piksel hasil konversi kasar (seperti 708, 1068, 1428 dx
 #### C. Teknik Salin-Referensi (Copy-Reference Technique)
 Membangun elemen XML `numbering.xml` dan `styles.xml` mentah dari nol melalui script python sering menghasilkan dokumen yang korup atau penomoran tidak muncul di Google Docs.
 **Metode Teruji dan Handal**:
-Gunakan fungsi `clone_from_template("template_referensi.docx")`:
+Gunakan fungsi `clone_from_template("<path-template-referensi.docx>")` (template referensi disediakan unit kerja, tidak ada di repo):
 1. Salin berkas referensi DOCX yang memiliki konfigurasi style dan numbering yang valid.
 2. Hapus seluruh isi tabel dan paragraf menggunakan `p._p.getparent().remove(p._p)`.
 3. Tulis ulang konten laporan dengan mewarisi seluruh section properties, margins, numbering definitions, dan style heading asli.
@@ -901,7 +901,7 @@ from bpkp_docx_engine import create_document
 
 ```python
 import sys
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\laporan-pengawasan-bpkp\scripts")
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # skills/laporan-pengawasan-bpkp/scripts
 
 from bpkp_docx_engine import create_document, add_p, add_heading_2, add_signature_block
 from lhp_builder import build_bab_i_template, build_bab_ii_template, build_bab_iii_temuan
@@ -961,7 +961,7 @@ doc.save("LHP.docx")
 
 ## 14. Dokumentasi Pengawasan: Notisi Pembahasan & Berita Acara Exit Meeting
 
-Sesuai **Peraturan BPKP Nomor 4 Tahun 2026 BAB V-C.1**, Dokumentasi Pengawasan (Notisi Hasil Pengawasan, Berita Acara Pembahasan/Exit Meeting, Rencana Tindak Perbaikan, Pernyataan Kesanggupan) merupakan kategori naskah dinas khusus yang **tidak menggunakan penomoran surat dinas biasa** (tanpa kode jenis nomor keluar biasa) dan dapat ditandatangani oleh Pengendali Teknis/Ketua Tim bersama pimpinan entitas auditan.
+Sesuai **Peraturan BPKP Nomor 4 Tahun 2026** (Naskah Dinas Khusus, Dokumentasi Pengawasan), Notisi, Berita Acara Pembahasan, RTP, dan pernyataan kesanggupan tindak lanjut termasuk dokumentasi pengawasan tanpa penomoran format surat dinas umum. Notisi disampaikan sepihak dengan tanda tangan tim pengawasan; ikuti ketentuan Notisi/BA di peraturan, jangan disamakan dengan surat dinas biasa.
 
 ### 14.1 Notisi Hasil Pengawasan (Notisi Pembahasan)
 

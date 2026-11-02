@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "unit": "PW36",
+  "unit": "PW34",
   "syntax": "{{KEY}}",
   "replacement_scope": "Nilai per berkas; gunakan nilai umum hanya jika memang sama.",
   "applicability": {

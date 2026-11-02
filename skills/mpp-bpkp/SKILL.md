@@ -1,6 +1,7 @@
 ---
 name: mpp-bpkp
 description: "Buat paket dokumen MPP BPKP untuk penyiapan Surat Tugas dari file isian XLSX, termasuk rencana, pengantar, ST manual atau output SIMA-NG, KM 4/5/6, DPP, pakta, dan laporan PIA yang berlaku. Gunakan saat diminta membuat seluruh kelengkapan ST dalam satu folder nama penugasan."
+tags: [bpkp, mpp, surat-tugas, audit-planning, docx, peraturan-bpkp-2-2023, peraturan-bpkp-4-2026]
 ---
 
 # MPP BPKP

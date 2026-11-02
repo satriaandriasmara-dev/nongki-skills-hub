@@ -88,10 +88,13 @@ TENTANG
 
 **Format 2 -- Dengan kode jenis** (untuk naskah dinas selain di atas):
 ```
-[kode keamanan] / [kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
+[kode klasifikasi arsip] / [kode klasifikasi keamanan] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
 ```
+Kode klasifikasi keamanan diletakkan **setelah** kode klasifikasi arsip (Peraturan 4/2026 Bagian II.B.b). Untuk surat dinas Biasa, segmen kode keamanan **dikosongkan** (tidak diisi kode apa pun), contoh `OT.01 / / S-20 / PW20/2 / 2026`.
 
-Kode keamanan hanya untuk surat dinas: `SR` (Sangat Rahasia), `R` (Rahasia), `T` (Terbatas), `S` (Biasa, tanpa kode). Kode jenis utama (Peraturan 4/2026): `KEP`, `SPRIN`, `ST`, `ND`, `MO`, `UND`, `S`, `LHP`, `LPP`, `MoU`, `PRJ`, `BA`, `KS`, `KET`, `SP`, `PENG`, `PRT`, `SPT`, `NOTULA`, `SERT`, `PI`.
+Contoh resmi yang tidak diperkenankan: penambahan kode, huruf, atau angka pada nomor urut (mis. `OT.00/S-123A/SU01/3/2026`, `OT.00/S-123b/SU01/3/2026`, `OT.00/S-123.2/SU01/3/2026`).
+
+Kode klasifikasi keamanan hanya untuk surat dinas: `SR` (Sangat Rahasia), `R` (Rahasia), `T` (Terbatas). **Biasa tidak memakai kode** -- kategori Biasa ditulis di tubuh surat, tidak dicantumkan pada nomor. Kode jenis utama (Peraturan 4/2026): `KEP`, `SPRIN`, `ST`, `ND`, `MO`, `UND`, `S`, `LHP`, `LPP`, `MoU`, `PRJ`, `BA`, `KS`, `KET`, `SP`, `PENG`, `PRT`, `SPT`, `NOTULA`, `SERT`, `PI`.
 
 **Naskah Dinas tanpa penomoran** (tidak dibubuhi nomor; mengikuti kebijakan unit kerja): disposisi, dokumentasi pengawasan, pedoman, panduan teknis pengawasan, petunjuk pelaksanaan/teknis, telaah staf, kerangka acuan kerja, dan formulir.
 
@@ -127,7 +130,7 @@ Tanyakan jika belum jelas:
 ### Langkah 3: Susun draf
 - Gunakan sistematika dan format sesuai jenis naskah (referensi jenis).
 - Susun nomor naskah sesuai format Bagian 2; jika kode klasifikasi arsip/konseptor tidak diketahui, gunakan placeholder dan beri catatan kepada pengguna.
-- Terapkan klasifikasi keamanan bila perlu (default surat dinas: Biasa/kode `S`).
+- Terapkan klasifikasi keamanan bila perlu. **Default surat dinas: Biasa (tanpa kode keamanan pada nomor)** -- tulis "Biasa" di baris sifat surat, jangan memakai kode `S` pada nomor.
 - Untuk naskah elektronik berklasifikasi SR/R: ingatkan kewajiban enkripsi; TTE menggunakan sertifikat BSrE (berlaku 2 tahun).
 
 ### Langkah 4: Validasi kelengkapan
@@ -158,10 +161,15 @@ Terapkan prinsip humanisasi dan pemeriksaan EYD V sebagaimana diuraikan pada ski
 Berdasarkan implementasi standar naskah dinas dan laporan pengawasan BPKP pada Microsoft Word (`docx`):
 
 ### 6.1 Pengaturan Halaman & Tipografi
-- **Ukuran Kertas & Margin:** Kertas A4 (21,0 cm x 29,7 cm). Margin Kiri: 3,0 cm (1.18", ruang jilid); Margin Atas, Kanan, dan Bawah: 2,0 cm (0.79").
-- **Font:** Font resmi **Arial** 100% konsisten pada seluruh teks. Pada OpenXML Word wajib menyertakan:
+- **Ukuran Kertas & Ruang Tepi (Margin):** Kertas A4 (21,0 cm x 29,7 cm). Sesuai Peraturan BPKP 4/2026 Bagian II.E, ruang tepi bersifat **fleksibel** (bukan angka tetap) dan paling kurang:
+  - **Atas:** 10 mm bila memakai kop Naskah Dinas; **paling kurang 20 mm** tanpa kop atau pada halaman berikutnya.
+  - **Bawah:** paling kurang **25 mm**.
+  - **Kiri:** paling kurang **30 mm** untuk media rekam kertas; **paling kurang 20 mm** untuk media rekam elektronik.
+  - **Kanan:** paling kurang **20 mm**.
+  - Penentuan akhir menyesuaikan kondisi naskah dengan memperhatikan keserasian dan estetika.
+- **Font:** Sesuai Peraturan BPKP 4/2026 Bagian II.D.2, Naskah Dinas menggunakan **Arial ukuran 11 atau 12 pt**; untuk naskah berupa **produk hukum** (peraturan, instruksi, surat edaran, keputusan) digunakan **Bookman Old Style ukuran 12 pt**. Untuk penulisan naskah dinas (non-produk hukum) gunakan Arial, dan sertakan tag OpenXML:
   `<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>`
-- **Ukuran Font:**
+- **Ukuran Font (preset teknis proyek, bukan angka wajib peraturan):**
   - Judul Dokumen/Naskah: Arial 12–14 pt Bold (Cover: Arial 14–16 pt Bold)
   - Nama Lembaga Cover: Arial 13 pt Bold; Nama Perwakilan/Kedeputian: Arial 12 pt Bold
   - Heading 1/Judul Bab: Arial 12 pt Bold, Rata Tengah, Spasi Atas 12 pt, Spasi Bawah 6 pt
@@ -170,7 +178,7 @@ Berdasarkan implementasi standar naskah dinas dan laporan pengawasan BPKP pada M
   - Isi Narasi Paragraf / Rincian: Arial 12 pt Regular
   - Header & Isi Tabel: Arial 10 pt (Header Bold, Isi Regular)
   - Catatan Kaki, Keterangan Sumber Tabel, Alamat Kop: Arial 9 pt Regular / Italic
-- **Spasi & Perataan:** Line spacing **1,15 line pitch** (`w:line="276"`), Space After **6 pt** (`w:after="120"` dxa), Space Before **0 pt** (khusus sub-heading: Space Before **8 pt**). Perataan teks wajib **100% Justified (Rata Kiri-Kanan)**.
+- **Spasi & Perataan:** Peraturan 4/2026 tidak menetapkan angka spasi baku; jarak spasi ditentukan sesuai keperluan dengan memperhatikan keserasian dan estetika (lihat Bagian II.D). Panduan teknis yang lazim dipakai sebagai **preset proyek** (bukan angka wajib peraturan): line spacing **1,15 line pitch** (`w:line="276"`), Space After **6 pt** (`w:after="120"` dxa), Space Before **0 pt** (sub-heading: **8 pt**). Perataan teks wajib **100% Justified (Rata Kiri-Kanan)**.
 
 ### 6.2 Headings Bertingkat: Style Word, Google Docs, & Markdown
 
@@ -268,7 +276,7 @@ Tanda titik dua memiliki beberapa konteks penggunaan dengan aturan format berbed
 **A. Metadata Kop Surat:**
 Label rata kiri dengan padding tetap, lalu `:`, lalu spasi, lalu nilai. Tanpa spasi sebelum `:`.
 ```
-Nomor    : PE.09.02/ST-314/PW36/2/2026
+Nomor    : PE.09.02/ST-314/PW34/2/2026
 Lampiran : Satu Berkas
 Hal      : Surat Tugas
 ```
@@ -415,7 +423,7 @@ Pada pelaksanaan pengawasan intern BPKP, Surat Tugas (ST) selalu disertai naskah
 Pakta Integritas merupakan komitmen etika dan integritas tim sebelum melaksanakan penugasan pengawasan. Dokumen ini wajib dibuat dengan standar presisi:
 - **Ketentuan Format & Layout:**
   - Kertas: A4 (21,0 cm x 29,7 cm), layout **tepat 1 halaman penuh (single page)**.
-  - Margin: Kiri 3,0 cm (ruang jilid/arsip), Kanan 2,0 cm, Atas 2,0 cm, Bawah 2,0 cm.
+  - Ruang tepi (Peraturan 4/2026 Bagian II.E, fleksibel, paling kurang): Kiri 30 mm (media kertas) atau 20 mm (media elektronik), Kanan 20 mm, Bawah 25 mm, Atas 10 mm (dengan kop) atau 20 mm (tanpa kop/halaman berikutnya).
   - Kop naskah dinas: BPKP Perwakilan / Unit Kerja eselon II terkait, garis pemisah kop tebal (`sz=18`).
   - Tipografi: Arial konsisten (Judul 13pt bold, Subjudul/Isi 10.5–11pt spasi 1.15, Tabel TTD 10pt spasi 1.0).
   - Poin Komitmen: 7 butir komitmen integritas menggunakan penomoran multilevel native Word (`<w:numPr>`) dengan *hanging indent* rapi.

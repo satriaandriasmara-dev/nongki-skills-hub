@@ -1,6 +1,7 @@
 ---
 name: humanizer-indonesia
 description: Tulis ulang teks bahasa Indonesia agar alami, manusiawi, spesifik, sesuai konteks tanpa mengubah makna (humanize/naturalisasi), bebas artefak AI, serta bersih dari tanda pisah (em dash). Termasuk audit deterministik penanda AI pada naskah panjang dan konversi penanda miring markdown ke run italic asli pada DOCX/Google Docs.
+tags: [indonesian, humanizer, naturalize, eyd, docx]
 ---
 
 # Humanizer Indonesia
