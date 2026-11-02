@@ -22,7 +22,7 @@ from typing import Optional, List, Tuple
 import docx
 from docx import Document
 from docx.document import Document as _Doc
-from docx.shared import Inches, Pt, RGBColor, Cm
+from docx.shared import Inches, Pt, RGBColor, Cm, Twips
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx.oxml import OxmlElement, parse_xml
@@ -1500,6 +1500,30 @@ def add_table_with_subheader(doc, headers: list, sub_headers: list,
 # KOP SURAT (LETTERHEAD) TABEL RESMI BPKP
 # =====================================================================
 
+def _section_text_width_twips(doc) -> int:
+    """Lebar area teks halaman (page minus margin kiri/kanan), dalam dxa/twips."""
+    sec = doc.sections[0]
+
+    def _twips(length) -> int:
+        return int(length.twips) if hasattr(length, "twips") else int(length)
+
+    return _twips(sec.page_width) - _twips(sec.left_margin) - _twips(sec.right_margin)
+
+
+def _scale_cm_widths_to_text_area(doc, widths_cm: list) -> list:
+    """Skala lebar kolom (Cm) agar total tblGrid tidak melebihi area teks."""
+    cols = [Cm(w) for w in widths_cm]
+    tw = [int(w.twips) for w in cols]
+    total = sum(tw)
+    avail = _section_text_width_twips(doc)
+    if total <= avail or total <= 0:
+        return cols
+    ratio = avail / total
+    scaled_tw = [max(1, int(t * ratio)) for t in tw]
+    scaled_tw[-1] = max(1, avail - sum(scaled_tw[:-1]))
+    return [Twips(t) for t in scaled_tw]
+
+
 def _set_table_grid(table, widths):
     """Tulis ulang <w:tblGrid> sesuai lebar kolom yang diberikan (satu kali per kolom)."""
     grid = table._tbl.tblGrid
@@ -1549,11 +1573,12 @@ def add_kop_surat_table(doc, logo_path: str = "",
 
     # Sinkronkan tblGrid dengan lebar kolom yang sebenarnya agar lebar tabel
     # tidak melebihi area teks dan marker ruler sejajar dengan grid.
-    _set_table_grid(table, [Cm(3.06), Cm(13.34)])
+    col_widths = _scale_cm_widths_to_text_area(doc, [3.06, 13.34])
+    _set_table_grid(table, col_widths)
 
     # Kolom kiri: Logo
     cell_logo = table.cell(0, 0)
-    cell_logo.width = Cm(3.06)
+    cell_logo.width = col_widths[0]
     set_cell_margins(cell_logo, top=30, bottom=80, left=40, right=40)
     set_cell_bottom_border(cell_logo, color="000000", sz="18")
 
@@ -1571,7 +1596,7 @@ def add_kop_surat_table(doc, logo_path: str = "",
 
     # Kolom kanan: Teks instansi
     cell_ktxt = table.cell(0, 1)
-    cell_ktxt.width = Cm(13.34)
+    cell_ktxt.width = col_widths[1]
     set_cell_margins(cell_ktxt, top=30, bottom=80, left=40, right=40)
     set_cell_bottom_border(cell_ktxt, color="000000", sz="18")
 
