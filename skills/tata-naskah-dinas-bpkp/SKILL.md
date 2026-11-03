@@ -91,7 +91,13 @@ TENTANG
 [kode keamanan] / [kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
 ```
 
-Kode keamanan hanya untuk surat dinas: `SR` (Sangat Rahasia), `R` (Rahasia), `T` (Terbatas), `S` (Biasa, tanpa kode). Kode jenis utama (Peraturan 4/2026): `KEP`, `SPRIN`, `ST`, `ND`, `MO`, `UND`, `S`, `LHP`, `LPP`, `MoU`, `PRJ`, `BA`, `KS`, `KET`, `SP`, `PENG`, `PRT`, `SPT`, `NOTULA`, `SERT`, `PI`.
+**Surat dinas** (Surat Dinas, Surat Dinas Kepala/Waka, Surat Pengantar Penugasan) mengikuti templat resmi, dengan kode keamanan sesudah kode klasifikasi arsip dan tanpa kode konseptor:
+```
+[kode klasifikasi arsip] / [kode keamanan] / S - [nomor urut] / [kode unit penanda tangan] / [tahun]
+```
+Notisi, Surat Permintaan Data, Undangan, dan Laporan Penunjang Pengawasan juga tanpa kode konseptor (`[kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit] / [tahun]`). `generate_naskah.py` menyusun nomor mengikuti urutan segmen pada baris nomor masing-masing templat.
+
+Kode keamanan hanya untuk surat dinas: `SR` (Sangat Rahasia), `R` (Rahasia), `T` (Terbatas); surat Biasa tanpa kode keamanan (segmennya dihilangkan). Kode jenis utama (Peraturan 4/2026): `KEP`, `SPRIN`, `ST`, `ND`, `MO`, `UND`, `S`, `LHP`, `LPP`, `MoU`, `PRJ`, `BA`, `KS`, `KET`, `SP`, `PENG`, `PRT`, `SPT`, `NOTULA`, `SERT`, `PI`.
 
 **Naskah Dinas tanpa penomoran** (tidak dibubuhi nomor; mengikuti kebijakan unit kerja): disposisi, dokumentasi pengawasan, pedoman, panduan teknis pengawasan, petunjuk pelaksanaan/teknis, telaah staf, kerangka acuan kerja, dan formulir.
 

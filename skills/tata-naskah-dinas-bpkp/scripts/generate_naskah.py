@@ -342,6 +342,55 @@ def apply_nomor(doc: docx.Document, formatted_nomor: str) -> int:
     return count
 
 
+def find_nomor_pattern(doc: docx.Document) -> Optional[str]:
+    """Teks baris nomor templat (paragraf "NOMOR ..." atau sel tabel "Nomor") yang masih berplaceholder."""
+    for p in doc.paragraphs[:25]:
+        if re.match(r"\s*NOMOR", p.text) and _NOMOR_PLACEHOLDER.search(p.text):
+            return p.text
+    for table in doc.tables[:3]:
+        for row in table.rows[:4]:
+            cells = row.cells
+            if cells and cells[0].text.strip().startswith("Nomor"):
+                for cell in cells[1:]:
+                    if _NOMOR_PLACEHOLDER.search(cell.text):
+                        return cell.text
+    return None
+
+
+# Urutan pengecekan penting: "kode klasifikasi keamanan" tidak boleh terbaca sebagai arsip.
+_NOMOR_SEGMENTS = [("klasifikasi arsip", "arsip"), ("klasifikasi keamanan", "keamanan"),
+                   ("nomor urut", "urut"), ("kode unit", "unit"), ("konseptor", "konseptor"),
+                   ("tahun", "tahun")]
+
+
+def format_nomor_from_template(pattern: str, values: Dict[str, str], kode_naskah: str) -> Optional[str]:
+    """
+    Susun nomor mengikuti urutan segmen pada templat resmi. Surat dinas, misalnya, memakai
+    arsip/keamanan/S-urut/unit/tahun (tanpa konseptor), berbeda dari Format 2 umum.
+    Segmen keamanan dihilangkan bila kosong (Biasa); segmen literal (mis. "K") dipertahankan.
+    """
+    body = re.sub(r"^\s*NOMOR\s*:?\s*", "", pattern.strip(), flags=re.IGNORECASE)
+    parts = []
+    for seg in body.split("/"):
+        seg = seg.strip()
+        key = next((k for pat, k in _NOMOR_SEGMENTS if pat in seg.lower()), None)
+        if key is None:
+            literal = re.sub(r"[.…\s]+", "", seg)
+            if not literal or "(" in seg:
+                return None  # pola tak dikenal: pakai Format 2 umum
+            parts.append(literal)
+        elif key == "urut":
+            m = re.match(r"([A-Za-z]+)\s*-", seg)
+            code = m.group(1) if m else kode_naskah
+            parts.append(f"{code}-{values['urut']}" if code else values["urut"])
+        elif key == "keamanan":
+            if values["keamanan"]:
+                parts.append(values["keamanan"])
+        else:
+            parts.append(values[key])
+    return "/".join(parts)
+
+
 def populate_personel_table(doc: docx.Document, personel_list: List[Dict[str, str]]):
     """
     Isi tabel personil tim pada Surat Tugas.
@@ -440,9 +489,18 @@ def generate_document(template_key: str,
 
     # Kode keamanan (SR/R/T) hanya untuk surat dinas; Biasa tanpa kode.
     kd_keamanan = payload.get("kode_keamanan", "")
-    formatted_nomor = f"{kd_arsip}/{kd_naskah}-{no_urut}/{kd_unit}/{konseptor}/{thn}"
-    if kd_keamanan:
-        formatted_nomor = f"{kd_keamanan}/{formatted_nomor}"
+    # Urutan segmen mengikuti baris nomor templat resmi; Format 2 umum hanya bila templat
+    # tidak memuat pola nomor yang dikenali.
+    pattern = find_nomor_pattern(doc)
+    formatted_nomor = format_nomor_from_template(
+        pattern, {"arsip": kd_arsip, "keamanan": kd_keamanan, "urut": str(no_urut), "unit": kd_unit,
+                  "konseptor": str(konseptor), "tahun": thn}, kd_naskah) if pattern else None
+    if formatted_nomor and kd_keamanan and "keamanan" not in pattern.lower():
+        print(f"Peringatan: templat '{key}' tidak memuat kode keamanan; kode_keamanan diabaikan.", file=sys.stderr)
+    if not formatted_nomor:
+        formatted_nomor = f"{kd_arsip}/{kd_naskah}-{no_urut}/{kd_unit}/{konseptor}/{thn}"
+        if kd_keamanan:
+            formatted_nomor = f"{kd_keamanan}/{formatted_nomor}"
     if payload.get("nomor_lengkap"):
         formatted_nomor = payload["nomor_lengkap"]
 
