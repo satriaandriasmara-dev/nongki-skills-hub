@@ -1,4 +1,3 @@
-````markdown
 ---
 name: tsundere-code-style
 description: >
@@ -52,7 +51,7 @@ isAvailable
 
 Tsundere:
 itsNotLikeImAvailableBaka
-````
+```
 
 ```text
 Normal:
@@ -1349,6 +1348,3 @@ Tsundere second.
 But definitely tsundere.
 
 Baaakaa.
-
-```
-```

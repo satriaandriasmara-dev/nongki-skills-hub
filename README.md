@@ -93,23 +93,23 @@ nongki-skills-hub/
     │   └── generate_image.py
     ├── laporan-pengawasan-bpkp/
     │   ├── SKILL.md
-    │   ├── assets/            # BPKP logo (PNG + JPG)
+    │   ├── assets/            # BPKP logo (PNG + JPG), unit_profiles.json
     │   ├── references/
     │   └── scripts/           # bpkp_docx_engine.py, lhp_builder.py
     ├── tata-naskah-dinas-bpkp/
     │   ├── SKILL.md
-    │   ├── assets/            # BPKP logo (PNG + JPG)
-    │   ├── references/
-    │   └── scripts/           # naskah_dinas_helper.py
+    │   ├── assets/            # BPKP logo, unit_profiles.json, templates/ (46 master DOCX)
+    │   ├── references/        # incl. templates_registry.json
+    │   └── scripts/           # generate_naskah.py, naskah_dinas_helper.py, test_engine.py
     ├── mpp-bpkp/
     │   ├── SKILL.md
     │   ├── PANDUAN_PENGGUNAAN.md
     │   ├── README.md
     │   ├── agents/            # openai.yaml interface definition
-    │   ├── assets/            # Isian_DATA_MPP_BPKP.xlsx, 12 master DOCX templates
+    │   ├── assets/            # Isian_DATA_MPP_BPKP.xlsx, templates/ (12 master DOCX)
     │   ├── examples/          # Synthetic test datasets (PIA & Evaluasi)
     │   ├── references/        # Format specs, TND alignment & risk/KM-6 guides
-    │   └── scripts/           # generate_mpp.py, model.py, create_workbook.py
+    │   └── scripts/           # generate_mpp.py, model.py, create_workbook.py, verify_workflow.py
     ├── pdf-comprehension/
     │   └── SKILL.md
     ├── study-guide-writing/

@@ -117,7 +117,7 @@ Gunakan $mpp-bpkp untuk membuat seluruh dokumen MPP dari file isian XLSX ini dal
   ```
 - **Generate Dokumen Lengkap (DOCX & PDF)**:
   ```powershell
-  python scripts/generate_mpp.py "path/ke/isian.xlsx" --content "path/ke/rancangan.json" --output-root "D:/autoST/Hasil_MPP"
+  python scripts/generate_mpp.py "path/ke/isian.xlsx" --content "path/ke/rancangan.json" --output-root "<folder-hasil>"
   ```
 - **Membuat Master Isian Baru**:
   ```powershell

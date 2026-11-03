@@ -82,4 +82,21 @@ TABLES = {
     'Pegawai': ['Nama', 'NIP', 'NIP Lama', 'Bidang'],
 }
 BASE_ROLES = ['Wakil Penanggung Jawab', 'Pengendali Teknis', 'Ketua Tim'] + ['Anggota Tim'] * 20
+# Batas jam pengawasan per hari orang BPKP (dikonfirmasi pemelihara skill).
+JAM_MAKS_PER_HARI = 6.5
+JAM_HARI_CATATAN = 'Jam pengawasan per hari orang maksimal 6,5 jam (nilai bawaan 6,5).'
+# Teks identitas yang tertulis apa adanya di DOCX assets/templates (Papua Tengah). Ini kunci
+# penggantian, terpisah dari profil_unit.json yang boleh diubah ke unit lain.
+TEMPLATE_IDENTITY = {
+    'unit': 'Perwakilan BPKP Provinsi Papua Tengah',
+    'nama_kop_baris1': 'BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN',
+    'nama_kop_baris2': 'PERWAKILAN PROVINSI PAPUA TENGAH',
+    'alamat': 'Jalan Sam Ratulangi, Kelurahan Oyehe, Distrik Nabire',
+    'wilayah_kodepos': 'Kabupaten Nabire, Provinsi Papua Tengah, Kode Pos: 98816',
+    'email': 'papua.tengah@bpkp.go.id',
+    'website': 'www.bpkp.go.id/papua.tengah',
+    'kota': 'Nabire',
+}
+# Kunci DATA (opsional, kolom E) -> field profil_unit.json; urutan = urutan penggantian, kota terakhir.
+PROFILE_FIELDS = {'UNIT_KERJA': 'unit', 'KOP_BARIS1': 'nama_kop_baris1', 'KOP_BARIS2': 'nama_kop_baris2', 'ALAMAT_UNIT': 'alamat', 'WILAYAH_KODEPOS': 'wilayah_kodepos', 'EMAIL_UNIT': 'email', 'WEBSITE_UNIT': 'website', 'KOTA_UNIT': 'kota'}
 PIA_REQUIRED = ['TOPIK_PIA','NOMOR_ST_PIA','TANGGAL_ST_PIA','TANGGAL_MULAI_PIA','TANGGAL_SELESAI_PIA','TUJUAN_PIA','LINGKUP_PIA','GAMBARAN_UMUM_PIA','HASIL_TELAAH_PIA','HASIL_KONFIRMASI_PIA','KECUKUPAN_INFORMASI_PIA','SIMPULAN_RINGKAS_PIA','SIMPULAN_KELAYAKAN_PENGAWASAN','USULAN_KEPUTUSAN_PENGAWASAN','BATAS_TANGGUNG_JAWAB_PIA','METODE_PIA_1','NAMA_PENANDATANGAN_ND','JABATAN_PENANDATANGAN_ND','JABATAN_PENERIMA_ND','TANGGAL_ND_PIA','NAMA_KT_PIA','NIP_KT_PIA','NAMA_KORWAS_PIA','NIP_KORWAS_PIA','HARI_PIA_TERBILANG','KENDALA_DAN_PENANGANAN_PIA','DASAR_PIA_1']

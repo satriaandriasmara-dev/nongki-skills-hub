@@ -39,7 +39,7 @@ Gunakan $mpp-bpkp untuk membuat seluruh dokumen MPP dari file isian XLSX ini dal
   ```
 - **Generate Dokumen (DOCX & PDF)**:
   ```powershell
-  python scripts/generate_mpp.py "<file.xlsx>" --content "<rancangan.json>" --output-root "D:/autoST/Hasil_MPP"
+  python scripts/generate_mpp.py "<file.xlsx>" --content "<rancangan.json>" --output-root "<folder-hasil>"
   ```
 - **Membuat Master Isian Baru**:
   ```powershell
@@ -48,4 +48,8 @@ Gunakan $mpp-bpkp untuk membuat seluruh dokumen MPP dari file isian XLSX ini dal
 
   # Versi lokal dengan database pegawai internal:
   python scripts/create_workbook.py "path/ke/isian.xlsx" --overwrite --with-pegawai
+  ```
+- **Uji Alur Lengkap (data sintetis, butuh Excel dan Word)**:
+  ```powershell
+  python scripts/verify_workflow.py "<folder-uji-kosong>" assets/Isian_DATA_MPP_BPKP.xlsx
   ```

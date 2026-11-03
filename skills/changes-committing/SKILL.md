@@ -50,14 +50,27 @@ git log --oneline -10
 
 ### Step 2: Security Screening (MANDATORY)
 
-**Before doing anything else, scan for credentials:**
+**Before doing anything else, scan for credentials.** Nothing may be staged yet at this
+point, so scanning only `git diff --staged` would report "no credentials" for everything
+you are about to add. Scan all tracked changes and the untracked files too:
 
 ```bash
-# Check for hardcoded passwords
-git diff --staged | grep -iE "(password|passwd|pwd|secret|api[_-]?key|token|credentials)" | grep -v "os\.Getenv\|process\.env\|ENV\[" || echo "No obvious credentials found"
+# Tracked changes, staged and unstaged
+git diff HEAD | grep -iE "(password|passwd|pwd|secret|api[_-]?key|token|credentials)" | grep -v "os\.Getenv\|process\.env\|ENV\[" || echo "No obvious credentials in tracked changes"
+
+# Untracked files that would be added (respects .gitignore)
+git ls-files --others --exclude-standard | while IFS= read -r f; do
+  grep -inHE "(password|passwd|pwd|secret|api[_-]?key|token|credentials)" "$f"
+done
 
 # Check for suspicious patterns
-git diff --staged | grep -E '(".*[A-Za-z0-9]{32,}"|password.*=.*"[^$]|secret.*:.*")'
+git diff HEAD | grep -E '(".*[A-Za-z0-9]{32,}"|password.*=.*"[^$]|secret.*:.*")'
+```
+
+Run the staged-only scan again right before committing (Step 7) to confirm what is actually going in:
+
+```bash
+git diff --staged | grep -iE "(password|passwd|pwd|secret|api[_-]?key|token|credentials)" | grep -v "os\.Getenv\|process\.env\|ENV\[" || echo "No obvious credentials staged"
 ```
 
 **Review each file being committed:**
@@ -234,15 +247,12 @@ Co-Authored-By: Claude <noreply@anthropic.com>  # NEVER ADD THIS
 **Only stage safe files:**
 
 ```bash
-# Stage specific safe files
+# Stage specific safe files by name
 git add <file1> <file2> <file3>
-
-# Or stage all except excluded patterns
-git add .
-# Then unstage problematic files:
-git reset HEAD docs/internal.md
-git reset HEAD .env
 ```
+
+Do not use `git add .` / `git add -A` followed by unstaging: a `.env` or key file that is not in
+`.gitignore` gets staged, and one forgotten `git reset` puts it in history.
 
 **Create the commit:**
 
@@ -278,11 +288,14 @@ git show HEAD | grep -iE "(password|secret|api[_-]?key|token)" | grep -v "ENV\|g
 
 If secrets found: **IMMEDIATELY tell user to:**
 ```bash
-# Undo the commit
+# Undo the commit (only safe while it has NOT been pushed)
 git reset HEAD~1
 
 # Fix the issue, then re-commit
 ```
+
+If the commit was already pushed, undoing it locally is not enough: treat the secret as
+leaked, tell the user to revoke/rotate it first, and only then clean the history.
 
 ## File Exclusion Patterns
 

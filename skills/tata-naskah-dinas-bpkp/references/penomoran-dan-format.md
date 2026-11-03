@@ -36,6 +36,15 @@ Contoh riil naskah pengawasan BPKP di lapangan:
 2. **Laporan Hasil Pengawasan / Evaluasi (LHP):** `PE.09.03/LHP-314/PW36/2/2026`
 3. **Nota Dinas Internal Kantor Pusat:** `HO-01.02/ND-001/SU 01 1/2026`
 
+### Format Surat Dinas (mengikuti templat resmi)
+Surat Dinas, Surat Dinas Kepala/Waka, dan Surat Pengantar Penugasan menempatkan kode keamanan **sesudah** kode klasifikasi arsip dan **tanpa** kode konseptor:
+```
+[kode klasifikasi arsip] / [kode keamanan] / S - [nomor urut] / [kode unit penanda tangan] / [tahun]
+```
+Contoh: `PW.01.03/R/S-7/PW16/2026` (Rahasia); untuk surat Biasa segmen keamanan dihilangkan: `PW.01.03/S-7/PW16/2026`.
+
+Templat lain tanpa kode konseptor: Notisi Hasil Pengawasan dan Surat Dinas Notisi (`S`), Surat Permintaan Data (`S`), Surat Undangan (`UND`), dan Laporan Penunjang Pengawasan (`LPP`), dengan pola `[kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit] / [tahun]`. `scripts/generate_naskah.py` membaca baris nomor tiap templat dan menyusun nomor dengan urutan segmen yang sama.
+
 ### Kode Keamanan (Khusus Surat Dinas)
 - `SR` : Sangat Rahasia
 - `R`  : Rahasia

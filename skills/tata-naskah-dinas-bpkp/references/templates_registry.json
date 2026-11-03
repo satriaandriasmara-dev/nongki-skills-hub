@@ -92,7 +92,7 @@
     "title": "Laporan Penunjang Pengawasan",
     "filename": "Laporan_Penunjang_Pengawasan.docx",
     "kategori": "Khusus - Laporan",
-    "kode_naskah": "LHP",
+    "kode_naskah": "LPP",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -199,7 +199,7 @@
     "title": "Nota Kesepahaman (Versi Rinci)",
     "filename": "Nota_Kesepahaman_Dalam_Negeri_Versi_Rinci.docx",
     "kategori": "Khusus - Perjanjian",
-    "kode_naskah": "MOU",
+    "kode_naskah": "MoU",
     "has_unit_kop": false,
     "placeholders_detected": [],
     "tables_count": 0
@@ -209,7 +209,7 @@
     "title": "Nota Kesepahaman (Versi Ringkas)",
     "filename": "Nota_Kesepahaman_Versi_Ringkas.docx",
     "kategori": "Khusus - Perjanjian",
-    "kode_naskah": "MOU",
+    "kode_naskah": "MoU",
     "has_unit_kop": false,
     "placeholders_detected": [
       "…"
@@ -221,7 +221,7 @@
     "title": "Notisi Hasil Pengawasan Kedua",
     "filename": "Notisi_Kedua_-_Tim.docx",
     "kategori": "Khusus - Pengawasan",
-    "kode_naskah": "NOT",
+    "kode_naskah": "S",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -263,7 +263,7 @@
     "title": "Notula / Risalah Rapat",
     "filename": "Notula1.docx",
     "kategori": "Khusus",
-    "kode_naskah": "NOTU",
+    "kode_naskah": "NOTULA",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -310,7 +310,7 @@
     "title": "Perjanjian Kerja Sama Dalam Negeri",
     "filename": "Perjanjian_Kerja_Sama_Dalam_Negeri1.docx",
     "kategori": "Khusus - Perjanjian",
-    "kode_naskah": "PKS",
+    "kode_naskah": "PRJ",
     "has_unit_kop": false,
     "placeholders_detected": [],
     "tables_count": 0
@@ -320,7 +320,7 @@
     "title": "Agreement of Cooperation (Luar Negeri)",
     "filename": "Perjanjian_Kerja_Sama_Luar_Negeri1.docx",
     "kategori": "Khusus - Perjanjian",
-    "kode_naskah": "PKS",
+    "kode_naskah": "PRJ",
     "has_unit_kop": false,
     "placeholders_detected": [],
     "tables_count": 1
@@ -330,7 +330,7 @@
     "title": "Piagam Penghargaan",
     "filename": "Piagam_Penghargaan.docx",
     "kategori": "Khusus",
-    "kode_naskah": "PGM",
+    "kode_naskah": "PI",
     "has_unit_kop": false,
     "placeholders_detected": [
       "Kode Klasifikasi Arsip",
@@ -382,7 +382,7 @@
     "title": "Sertifikat Pelatihan / Kegiatan",
     "filename": "Sertifikat1.docx",
     "kategori": "Khusus",
-    "kode_naskah": "SRT",
+    "kode_naskah": "SERT",
     "has_unit_kop": false,
     "placeholders_detected": [],
     "tables_count": 1
@@ -516,7 +516,7 @@
     "title": "Surat Keterangan",
     "filename": "Surat_Keterangan1.docx",
     "kategori": "Khusus",
-    "kode_naskah": "SKET",
+    "kode_naskah": "KET",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -539,7 +539,7 @@
     "title": "Surat Kuasa",
     "filename": "Surat_Kuasa1.docx",
     "kategori": "Khusus",
-    "kode_naskah": "SKU",
+    "kode_naskah": "KS",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -562,7 +562,7 @@
     "title": "Surat Pengantar Naskah atau Barang",
     "filename": "Surat_Pengantar_Naskah_atau_Barang1.docx",
     "kategori": "Khusus",
-    "kode_naskah": "SPENG",
+    "kode_naskah": "SP",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -586,7 +586,7 @@
     "title": "Surat Pengantar Penugasan",
     "filename": "Surat_Pengantar_Penugasan1.docx",
     "kategori": "Khusus",
-    "kode_naskah": "SPENG",
+    "kode_naskah": "S",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -613,7 +613,7 @@
     "title": "Surat Peringatan",
     "filename": "Surat_Peringatan1.docx",
     "kategori": "Khusus",
-    "kode_naskah": "SPG",
+    "kode_naskah": "PRT",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -636,7 +636,7 @@
     "title": "Surat Perintah",
     "filename": "Surat_Perintah.docx",
     "kategori": "Arahan - Penugasan",
-    "kode_naskah": "SPIN",
+    "kode_naskah": "SPRIN",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -660,7 +660,7 @@
     "title": "Surat Perintah Kepala/Waka",
     "filename": "Surat_Perintah_Kepala_dan_Waka.docx",
     "kategori": "Arahan - Penugasan",
-    "kode_naskah": "SPIN",
+    "kode_naskah": "SPRIN",
     "has_unit_kop": false,
     "placeholders_detected": [
       "kode klasifikasi arsip",
@@ -728,7 +728,7 @@
     "title": "Surat Pernyataan",
     "filename": "Surat_Pernyataan1.docx",
     "kategori": "Khusus",
-    "kode_naskah": "SPN",
+    "kode_naskah": "SPT",
     "has_unit_kop": true,
     "placeholders_detected": [
       "UNIT KERJA",
@@ -751,7 +751,7 @@
     "title": "Surat Pernyataan Kesanggupan Tindak Lanjut",
     "filename": "Surat_Pernyataan_Kesanggupan_Tindak_Lanjut1.docx",
     "kategori": "Khusus - Pengawasan",
-    "kode_naskah": "SPN",
+    "kode_naskah": "SPT",
     "has_unit_kop": false,
     "placeholders_detected": [
       "tanggal, bulan, dan tahun",

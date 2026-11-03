@@ -94,7 +94,8 @@ def verify_output(manifest,model):
 
 def main(root,template):
     root=Path(root);root.mkdir(parents=True,exist_ok=True);results=[]
-    original=Path('D:/autoST/KM4_KM5_KM6.xlsx');before=hashlib.sha256(original.read_bytes()).hexdigest()
+    # Pastikan workbook templat yang diuji tidak berubah (dahulu dipatok ke D:/autoST, kini portabel).
+    original=Path(template);before=hashlib.sha256(original.read_bytes()).hexdigest()
     for label,count,jenis in [('UJI SINTETIS PIA Nabire',5,'PIA'),('UJI SINTETIS Evaluasi Nabire',17,'PENGAWASAN')]:
         base,plan,plan_file=fixture(root,template,label,count,jenis)
         model=compile_plan(base,plan)

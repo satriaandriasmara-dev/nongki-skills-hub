@@ -286,12 +286,11 @@ def _apply_font(run, bold: bool = False, italic: bool = False,
     run.font.bold = bold
     run.font.italic = italic
     run.font.color.rgb = color
-    rPr = run._r.get_or_add_rPr()
-    rFonts = parse_xml(
-        f'<w:rFonts {nsdecls("w")} w:ascii="{FONT_NAME}" w:hAnsi="{FONT_NAME}" '
-        f'w:cs="{FONT_NAME}" w:eastAsia="{FONT_NAME}"/>'
-    )
-    rPr.append(rFonts)
+    # font.name sudah membuat <w:rFonts>; lengkapi atributnya, jangan tambah elemen kedua
+    # (rFonts ganda di akhir rPr melanggar skema OOXML).
+    rFonts = run._r.get_or_add_rPr().get_or_add_rFonts()
+    for attr in ('ascii', 'hAnsi', 'cs', 'eastAsia'):
+        rFonts.set(qn(f'w:{attr}'), FONT_NAME)
 
 
 def _ensure_style_font(style) -> None:
@@ -900,6 +899,8 @@ def add_effect(doc, effect_text, num_id=None, ilvl=None):
 
 def add_recommendation_block(doc, rec_points, num_id=None, ilvl=4):
     """Blok rekomendasi: intro + item bernomor (ilvl=4)."""
+    if ilvl is None:  # add_recommendation() meneruskan ilvl=None sebagai default
+        ilvl = 4
     parent_ilvl = max(ilvl - 1, 0) if ilvl > 0 else 0
     parent_fmt = _LEVEL_FMT[parent_ilvl]
     parent_text_pos = parent_fmt[1] / 1440.0
@@ -933,8 +934,16 @@ def add_recommendation_block(doc, rec_points, num_id=None, ilvl=4):
             pPr.append(ind_el)
         add_run(p_intro, "Atas permasalahan tersebut, direkomendasikan agar:", bold=False, color=BLACK)
 
-        for item in rec_points:
-            add_numbered_item(doc, item, num_id, ilvl=ilvl)
+        for i, item in enumerate(rec_points):
+            if num_id is not None:
+                add_numbered_item(doc, item, num_id, ilvl=ilvl)
+            else:
+                # Tanpa num_id, numPr akan berisi numId="None" (XML tidak sah); pakai
+                # awalan manual a), b), ... seperti builder legacy lainnya.
+                p = add_p(doc, "", left_indent=Inches(0.65), hanging_indent=Inches(-0.30),
+                          tab_pos_dxa=936)
+                add_run(p, f"{chr(97 + i % 26)})\t", color=BLACK)
+                add_run(p, item, color=BLACK)
 
 
 def add_recommendation(doc, rec_text, num_id=None, ilvl=None):
@@ -1230,16 +1239,17 @@ def add_cover_page(doc, logo_path: str = "",
                     tahun: str = "TAHUN 2026",
                     nomor: str = "", tanggal: str = ""):
     """
-    Bangun halaman cover (sampul) laporan BPKP standar.
+    Bangun halaman cover (sampul) laporan BPKP standar
+    (Peraturan BPKP 4/2026 BAB V-C.5.b.1), lihat SKILL.md Bagian 11.6.
 
     Layout:
-      - Logo BPKP (center, 4.2 cm)
-      - Nama Lembaga (bold 14pt, center)
-      - Unit Kerja (bold 14pt, center)
+      - Logo BPKP (center, 34 mm x 17 mm)
+      - Nama Lembaga (Arial 13 bold, center)
+      - Unit Kerja (Arial 12 bold, huruf kapital, center)
       - Spasi tengah (3x paragraf kosong)
-      - Judul laporan (bold 13pt, center)
-      - Subjudul (bold 13pt, center)
-      - Tahun (bold 13pt, center)
+      - Judul laporan (bold 14pt, center)
+      - Subjudul (bold 14pt, center)
+      - Tahun (bold 14pt, center)
       - Spasi bawah (4x paragraf kosong)
       - Tabel Nomor/Tanggal (borderless, 2 baris x 3 kolom):
           [Label | : | Nilai]  (bold 11pt)
@@ -1258,13 +1268,13 @@ def add_cover_page(doc, logo_path: str = "",
         p_logo.paragraph_format.space_before = Pt(24)
         p_logo.paragraph_format.space_after = Pt(12)
         r_logo = p_logo.add_run()
-        r_logo.add_picture(logo_path, width=Cm(4.2))
+        r_logo.add_picture(logo_path, width=Cm(3.4), height=Cm(1.7))
 
-    # Header Nama Instansi
+    # Header Nama Instansi (lembaga Arial 13 tebal, unit kerja kapital Arial 12 tebal)
     add_p(doc, lembaga, space_before=Pt(0), space_after=Pt(2),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
-    add_p(doc, unit_kerja, space_before=Pt(0), space_after=Pt(48),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
+    add_p(doc, unit_kerja.upper(), space_before=Pt(0), space_after=Pt(48),
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(12))
 
     # Spasi Tengah
     for _ in range(3):
@@ -1272,11 +1282,11 @@ def add_cover_page(doc, logo_path: str = "",
 
     # Judul Utama Laporan
     add_p(doc, judul, space_before=Pt(0), space_after=Pt(4),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
     add_p(doc, subjudul, space_before=Pt(0), space_after=Pt(4),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
     add_p(doc, tahun, space_before=Pt(0), space_after=Pt(48),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
 
     # Spasi Bawah
     for _ in range(4):
@@ -1633,7 +1643,7 @@ def get_unit_profile(unit_key: str = "pusat_utama") -> dict:
     candidates = [
         os.path.join(current_dir, "..", "assets", "unit_profiles.json"),
         os.path.join(current_dir, "assets", "unit_profiles.json"),
-        os.path.join(os.path.dirname(current_dir), "tata-naskah-dinas-bpkp", "assets", "unit_profiles.json"),
+        os.path.join(current_dir, "..", "..", "tata-naskah-dinas-bpkp", "assets", "unit_profiles.json"),
     ]
     for asset_path in candidates:
         if os.path.exists(asset_path):

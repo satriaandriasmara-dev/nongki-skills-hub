@@ -629,7 +629,7 @@ def add_lembar_pengesahan(doc, judul_laporan: str, tempat_tanggal: str = "",
         p_nip.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p_nip.paragraph_format.space_before = Pt(0)
         p_nip.paragraph_format.space_after = Pt(0)
-        nip_text = pejabat_list[0].get("nip", "")
+        nip_text = pejabat_list[0].get("nip", "") if pejabat_list else ""
         if nip_text:
             r_nip = p_nip.add_run(f"NIP. {nip_text}")
             _apply_font(r_nip, size=Pt(12))
@@ -756,7 +756,8 @@ def build_notisi_temuan_5c(doc, temuan: dict, num_id: int):
     kondisi = temuan.get("kondisi", "")
     sebab = temuan.get("sebab", "")
     akibat = temuan.get("akibat", "")
-    rekom = temuan.get("rekom", "")
+    # Kunci terdokumentasi adalah "rekomendasi"; "rekom" tetap diterima untuk data lama.
+    rekom = temuan.get("rekomendasi", temuan.get("rekom", ""))
     table_data = temuan.get("table")
 
     # Judul butir temuan: Heading 3 + numbering level 1 (1.)
@@ -855,13 +856,19 @@ def _add_signature_grid(doc, left_lines, right_lines, tanggal=""):
     if not left_lines and not right_lines:
         return
 
+    # Tempat & tanggal notisi (parameter build_notisi_pembahasan) dicetak di atas kolom
+    # penanda tangan kanan; dahulu parameter ini diterima tetapi tidak pernah ditulis.
+    left_lines, right_lines = list(left_lines or []), list(right_lines or [])
+    if tanggal:
+        (right_lines if right_lines else left_lines).insert(0, (tanggal, {}))
+
     table = doc.add_table(rows=1, cols=2)
     table.alignment = _WDTA.CENTER
     left, right = table.rows[0].cells
     left.width = Cm(8.5)
     right.width = Cm(8.5)
 
-    for cell, lines in ((left, left_lines or []), (right, right_lines or [])):
+    for cell, lines in ((left, left_lines), (right, right_lines)):
         cell.text = ""
         first = True
         for text, opts in lines:
@@ -894,9 +901,6 @@ def _add_signature_grid(doc, left_lines, right_lines, tanggal=""):
         f'</w:tblBorders>'
     )
     tblPr.append(borders)
-
-
-print("naskah_dinas_helper.py loaded - BPKP Tata Naskah Dinas helper ready.")
 
 
 # =====================================================================

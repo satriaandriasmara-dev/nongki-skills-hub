@@ -72,10 +72,14 @@ def get_profile(profile_key: str, overrides: Optional[Dict[str, Any]] = None) ->
         for k, v in profiles.items():
             if key in k or k in key:
                 profile = v.copy()
+                # Mis. "papua_selatan" jatuh ke profil "papua" (Jayapura); beri tahu agar kop dicek.
+                print(f"Peringatan: profil unit '{profile_key}' tidak ada; memakai profil '{k}'.", file=sys.stderr)
                 break
-                
+
     if not profile:
         # Profil default jika tidak ditemukan
+        print(f"Peringatan: profil unit '{profile_key}' tidak ada; kop memakai alamat generik. "
+              "Tambahkan unit ke assets/unit_profiles.json.", file=sys.stderr)
         profile = {
             "kode_unit": "PW",
             "nama_kantor": f"PERWAKILAN BPKP {profile_key.upper()}",
@@ -190,20 +194,31 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
     Gantikan kop teks bawaan dengan Tabel Kop Resmi 2 kolom + Logo BPKP + Garis Tebal Bawah
     sesuai standar Peraturan BPKP 4/2026.
     """
-    # 1. Deteksi dan bersihkan 5 baris kop teks di awal dokumen
-    del_indices = []
-    for i, p in enumerate(doc.paragraphs[:7]):
-        txt = p.text.strip()
-        if any(keyword in txt for keyword in [
-            "BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN",
-            "UNIT KERJA",
-            "nomor telepon",
-            "Website www.bpkp.go.id"
-        ]):
-            del_indices.append(p)
-            
-    for p in del_indices:
-        p.text = ""
+    # 1. Deteksi dan hapus 5 baris kop teks di awal dokumen (termasuk logo dan
+    #    baris alamat), agar tidak tersisa baris kosong atau alamat ganda di bawah tabel kop.
+    head = doc.paragraphs[:7]
+    kop_idx = [i for i, p in enumerate(head) if any(keyword in p.text.strip() for keyword in [
+        "BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN",
+        "UNIT KERJA",
+        "(alamat)",
+        "nomor telepon",
+        "Website www.bpkp.go.id"
+    ])]
+    if kop_idx:
+        last = kop_idx[-1]
+        # Paragraf kosong di atas baris kop adalah pemegang logo templat (mis. Keputusan/SE JPT);
+        # bila dibiarkan, logo lama menumpuk di atas tabel kop baru.
+        for i, p in enumerate(head[:last + 1]):
+            if i in kop_idx or not p.text.strip():
+                p._p.getparent().remove(p._p)
+        # Garis kop templat (shape "Straight Connector" ter-anchor di paragraf kosong sesudah kop)
+        # menjadi garis ganda di bawah tabel; hapus gambarnya, pertahankan paragraf spasinya.
+        for p in head[last + 1:last + 3]:
+            if p.text.strip():
+                break
+            for r in list(p._p):
+                if r.xpath('.//*[local-name()="drawing" or local-name()="pict"]'):
+                    p._p.remove(r)
 
     # 2. Sisipkan tabel kop di posisi paling atas
     # Buat tabel 1 row x 2 cols
@@ -274,15 +289,106 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
         r4.font.size = Pt(9)
 
     # Baris 5: Kontak & Website
-    telp = profile.get("telepon", "-")
+    telp = profile.get("telepon", "")
     em = profile.get("email", "")
     web = profile.get("website", "www.bpkp.go.id")
-    r5 = p_text.add_run(f"Telepon: {telp} | E-mail: {em} | Website: {web}")
+    # Profil tanpa nomor telepon (mis. papua_tengah) tidak dicetak "Telepon: -".
+    kontak = [f"Telepon: {telp}" if telp and telp != "-" else "", f"E-mail: {em}" if em else "", f"Website: {web}" if web else ""]
+    r5 = p_text.add_run(" | ".join(k for k in kontak if k))
     r5.font.name = "Arial"
     r5.font.size = Pt(8.5)
 
     # Pindahkan tabel ke awal dokumen di XML body
     doc._body._element.insert(0, table._tbl)
+
+
+_NOMOR_PLACEHOLDER = re.compile(r"\((kode klasifikasi arsip|nomor urut naskah dinas)\)", re.IGNORECASE)
+
+
+def _set_paragraph_text(paragraph, text: str):
+    """Tulis ulang teks paragraf memakai format run pertama (bold/ukuran templat tetap)."""
+    runs = paragraph.runs
+    if not runs:
+        paragraph.add_run(text)
+        return
+    runs[0].text = text
+    for r in runs[1:]:
+        r.text = ""
+
+
+def apply_nomor(doc: docx.Document, formatted_nomor: str) -> int:
+    """
+    Isi nomor naskah pada baris "NOMOR ..." (paragraf) atau baris tabel "Nomor :"
+    yang masih memuat placeholder nomor templat. Mengembalikan jumlah lokasi terisi.
+    """
+    count = 0
+    for p in doc.paragraphs[:25]:
+        m = re.match(r"\s*NOMOR\s*(:?)", p.text)
+        if m and _NOMOR_PLACEHOLDER.search(p.text):
+            _set_paragraph_text(p, f"NOMOR{m.group(1)} {formatted_nomor}")
+            count += 1
+    for table in doc.tables[:3]:
+        for row in table.rows[:4]:
+            cells = row.cells
+            if not cells or not cells[0].text.strip().startswith("Nomor"):
+                continue
+            for cell in cells[1:]:
+                if _NOMOR_PLACEHOLDER.search(cell.text) and cell.paragraphs:
+                    _set_paragraph_text(cell.paragraphs[0], formatted_nomor)
+                    for extra in cell.paragraphs[1:]:
+                        _set_paragraph_text(extra, "")
+                    count += 1
+                    break
+    return count
+
+
+def find_nomor_pattern(doc: docx.Document) -> Optional[str]:
+    """Teks baris nomor templat (paragraf "NOMOR ..." atau sel tabel "Nomor") yang masih berplaceholder."""
+    for p in doc.paragraphs[:25]:
+        if re.match(r"\s*NOMOR", p.text) and _NOMOR_PLACEHOLDER.search(p.text):
+            return p.text
+    for table in doc.tables[:3]:
+        for row in table.rows[:4]:
+            cells = row.cells
+            if cells and cells[0].text.strip().startswith("Nomor"):
+                for cell in cells[1:]:
+                    if _NOMOR_PLACEHOLDER.search(cell.text):
+                        return cell.text
+    return None
+
+
+# Urutan pengecekan penting: "kode klasifikasi keamanan" tidak boleh terbaca sebagai arsip.
+_NOMOR_SEGMENTS = [("klasifikasi arsip", "arsip"), ("klasifikasi keamanan", "keamanan"),
+                   ("nomor urut", "urut"), ("kode unit", "unit"), ("konseptor", "konseptor"),
+                   ("tahun", "tahun")]
+
+
+def format_nomor_from_template(pattern: str, values: Dict[str, str], kode_naskah: str) -> Optional[str]:
+    """
+    Susun nomor mengikuti urutan segmen pada templat resmi. Surat dinas, misalnya, memakai
+    arsip/keamanan/S-urut/unit/tahun (tanpa konseptor), berbeda dari Format 2 umum.
+    Segmen keamanan dihilangkan bila kosong (Biasa); segmen literal (mis. "K") dipertahankan.
+    """
+    body = re.sub(r"^\s*NOMOR\s*:?\s*", "", pattern.strip(), flags=re.IGNORECASE)
+    parts = []
+    for seg in body.split("/"):
+        seg = seg.strip()
+        key = next((k for pat, k in _NOMOR_SEGMENTS if pat in seg.lower()), None)
+        if key is None:
+            literal = re.sub(r"[.…\s]+", "", seg)
+            if not literal or "(" in seg:
+                return None  # pola tak dikenal: pakai Format 2 umum
+            parts.append(literal)
+        elif key == "urut":
+            m = re.match(r"([A-Za-z]+)\s*-", seg)
+            code = m.group(1) if m else kode_naskah
+            parts.append(f"{code}-{values['urut']}" if code else values["urut"])
+        elif key == "keamanan":
+            if values["keamanan"]:
+                parts.append(values["keamanan"])
+        else:
+            parts.append(values[key])
+    return "/".join(parts)
 
 
 def populate_personel_table(doc: docx.Document, personel_list: List[Dict[str, str]]):
@@ -331,15 +437,24 @@ def generate_document(template_key: str,
     menginjeksi data payload, dan menghasilkan naskah dinas Word final.
     """
     registry = load_registry()
-    key = template_key.lower().replace("-", "_").replace(" ", "_")
-    
+    # Sebagian ID registry memuat "-" (mis. notisi_kedua_-_tim); bandingkan dalam bentuk
+    # ternormalisasi agar "notisi_kedua_-_tim", "notisi-kedua-tim", dan "Notisi Kedua Tim" sama.
+    def _norm(k: str) -> str:
+        return re.sub(r"[\s_\-]+", "_", k.lower()).strip("_")
+
+    key = template_key.lower()
     if key not in registry:
-        # Cari template yang mendekati
-        matched = [k for k in registry if key in k]
-        if matched:
-            key = matched[0]
+        normalized = {_norm(k): k for k in registry}
+        wanted = _norm(template_key)
+        if wanted in normalized:
+            key = normalized[wanted]
         else:
-            raise ValueError(f"Template '{template_key}' tidak ditemukan dalam registry. Gunakan --list untuk melihat.")
+            # Cari template yang mendekati
+            matched = [k for n, k in normalized.items() if wanted in n]
+            if matched:
+                key = matched[0]
+            else:
+                raise ValueError(f"Template '{template_key}' tidak ditemukan dalam registry. Gunakan --list untuk melihat.")
 
     tpl_info = registry[key]
     tpl_file = os.path.join(_TEMPLATES_DIR, tpl_info["filename"])
@@ -368,11 +483,24 @@ def generate_document(template_key: str,
     # Format nomor naskah
     kd_arsip = payload.get("kode_klasifikasi", "PW.01.03")
     no_urut = payload.get("nomor_urut", "101")
-    kd_unit = payload.get("kode_unit", profile.get("kode_unit", "PW34"))
+    kd_unit = payload.get("kode_unit", profile.get("kode_unit", "PW36"))
     konseptor = payload.get("konseptor", "2")
     kd_naskah = tpl_info.get("kode_naskah", "ND")
 
-    formatted_nomor = f"{kd_arsip}/{kd_naskah}-{no_urut}/{kd_unit}/{konseptor}/{thn}"
+    # Kode keamanan (SR/R/T) hanya untuk surat dinas; Biasa tanpa kode.
+    kd_keamanan = payload.get("kode_keamanan", "")
+    # Urutan segmen mengikuti baris nomor templat resmi; Format 2 umum hanya bila templat
+    # tidak memuat pola nomor yang dikenali.
+    pattern = find_nomor_pattern(doc)
+    formatted_nomor = format_nomor_from_template(
+        pattern, {"arsip": kd_arsip, "keamanan": kd_keamanan, "urut": str(no_urut), "unit": kd_unit,
+                  "konseptor": str(konseptor), "tahun": thn}, kd_naskah) if pattern else None
+    if formatted_nomor and kd_keamanan and "keamanan" not in pattern.lower():
+        print(f"Peringatan: templat '{key}' tidak memuat kode keamanan; kode_keamanan diabaikan.", file=sys.stderr)
+    if not formatted_nomor:
+        formatted_nomor = f"{kd_arsip}/{kd_naskah}-{no_urut}/{kd_unit}/{konseptor}/{thn}"
+        if kd_keamanan:
+            formatted_nomor = f"{kd_keamanan}/{formatted_nomor}"
     if payload.get("nomor_lengkap"):
         formatted_nomor = payload["nomor_lengkap"]
 
@@ -412,17 +540,12 @@ def generate_document(template_key: str,
     if "replacements" in payload:
         replacements.update(payload["replacements"])
 
+    # Nomor naskah harus diterapkan SEBELUM penggantian placeholder umum; setelahnya
+    # pola "(kode klasifikasi arsip)" sudah hilang dan --nomor/nomor_lengkap terabaikan.
+    apply_nomor(doc, formatted_nomor)
+
     # Jalankan penggantian teks placeholder
     replace_all_placeholders(doc, replacements)
-
-    # Khusus nomor surat/naskah jika ada pola regex NOMOR ...
-    for p in doc.paragraphs[:15]:
-        if "NOMOR" in p.text and ("kode klasifikasi" in p.text or "nomor urut" in p.text):
-            p.text = f"NOMOR {formatted_nomor}"
-            for r in p.runs:
-                r.font.name = "Arial"
-                r.font.size = Pt(11)
-                r.font.bold = True
 
     # 3. Tangani Injeksi Tabel Personil (untuk Surat Tugas)
     if "personel" in payload or "tim" in payload:
@@ -499,8 +622,11 @@ def main():
         return
 
     payload = {}
-    if args.data and os.path.exists(args.data):
-        with open(args.data, "r", encoding="utf-8") as f:
+    if args.data:
+        # Salah ketik path jangan diam-diam menghasilkan naskah berisi placeholder default.
+        if not os.path.exists(args.data):
+            parser.error(f"file --data tidak ditemukan: {args.data}")
+        with open(args.data, "r", encoding="utf-8-sig") as f:
             payload = json.load(f)
 
     # Injeksi argumen CLI jika disediakan langsung

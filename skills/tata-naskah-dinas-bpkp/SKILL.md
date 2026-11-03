@@ -91,7 +91,13 @@ TENTANG
 [kode keamanan] / [kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
 ```
 
-Kode keamanan hanya untuk surat dinas: `SR` (Sangat Rahasia), `R` (Rahasia), `T` (Terbatas), `S` (Biasa, tanpa kode). Kode jenis utama (Peraturan 4/2026): `KEP`, `SPRIN`, `ST`, `ND`, `MO`, `UND`, `S`, `LHP`, `LPP`, `MoU`, `PRJ`, `BA`, `KS`, `KET`, `SP`, `PENG`, `PRT`, `SPT`, `NOTULA`, `SERT`, `PI`.
+**Surat dinas** (Surat Dinas, Surat Dinas Kepala/Waka, Surat Pengantar Penugasan) mengikuti templat resmi, dengan kode keamanan sesudah kode klasifikasi arsip dan tanpa kode konseptor:
+```
+[kode klasifikasi arsip] / [kode keamanan] / S - [nomor urut] / [kode unit penanda tangan] / [tahun]
+```
+Notisi, Surat Permintaan Data, Undangan, dan Laporan Penunjang Pengawasan juga tanpa kode konseptor (`[kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit] / [tahun]`). `generate_naskah.py` menyusun nomor mengikuti urutan segmen pada baris nomor masing-masing templat.
+
+Kode keamanan hanya untuk surat dinas: `SR` (Sangat Rahasia), `R` (Rahasia), `T` (Terbatas); surat Biasa tanpa kode keamanan (segmennya dihilangkan). Kode jenis utama (Peraturan 4/2026): `KEP`, `SPRIN`, `ST`, `ND`, `MO`, `UND`, `S`, `LHP`, `LPP`, `MoU`, `PRJ`, `BA`, `KS`, `KET`, `SP`, `PENG`, `PRT`, `SPT`, `NOTULA`, `SERT`, `PI`.
 
 **Naskah Dinas tanpa penomoran** (tidak dibubuhi nomor; mengikuti kebijakan unit kerja): disposisi, dokumentasi pengawasan, pedoman, panduan teknis pengawasan, petunjuk pelaksanaan/teknis, telaah staf, kerangka acuan kerja, dan formulir.
 
@@ -345,7 +351,7 @@ scripts/
 
 ```python
 import sys
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\tata-naskah-dinas-bpkp\scripts")
+sys.path.insert(0, r"<skills-dir>/tata-naskah-dinas-bpkp/scripts")
 
 from naskah_dinas_helper import (
     add_kop_surat, add_nota_dinas_header, add_surat_tugas_header,
@@ -353,7 +359,7 @@ from naskah_dinas_helper import (
 )
 
 # Engine inti (dari skill laporan-pengawasan-bpkp)
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\laporan-pengawasan-bpkp\scripts")
+sys.path.insert(0, r"<skills-dir>/laporan-pengawasan-bpkp/scripts")
 from bpkp_docx_engine import create_document
 ```
 
@@ -371,8 +377,8 @@ from bpkp_docx_engine import create_document
 
 ```python
 import sys
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\tata-naskah-dinas-bpkp\scripts")
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\laporan-pengawasan-bpkp\scripts")
+sys.path.insert(0, r"<skills-dir>/tata-naskah-dinas-bpkp/scripts")
+sys.path.insert(0, r"<skills-dir>/laporan-pengawasan-bpkp/scripts")
 
 from bpkp_docx_engine import create_document
 from naskah_dinas_helper import add_kop_surat, add_nota_dinas_header
@@ -434,7 +440,7 @@ Kendali mutu penugasan pengawasan dituangkan ke dalam kertas kerja spreadsheet t
   - Pencatatan berkala/kumulatif realisasi jam kerja mandays per penugasan, link formula ke KM 5 untuk menghitung varians/selisih efisiensi jam kerja.
 - **Formula Keterkaitan Antar-Sheet (Inter-Sheet Automation):**
   - **Sinkronisasi Metadata:** Seluruh sheet (KM 4, KM 5, KM 6) mereferensikan sel metadata utama (Nomor ST, Tanggal ST, Nama Penugasan, Objek Pengawasan, Periode Penugasan).
-  - **Kalkulasi Mandays Otomatis:** Perhitungan hari kerja menggunakan formula `=NETWORKDAYS(start_date, end_date, libur)` atau konversi jam kerja standar (1 Mandays = 7,5 jam kerja efektif BPKP).
+  - **Kalkulasi Mandays Otomatis:** Perhitungan hari kerja menggunakan formula `=NETWORKDAYS(start_date, end_date, libur)` atau konversi jam kerja per hari orang dengan batas **maksimal 6,5 jam pengawasan per hari orang**.
   - **Lookup Profil Tim:** Nama dan NIP tim diambil otomatis via formula `=VLOOKUP(...)` atau `=XLOOKUP(...)` dari master data pegawai.
 
 ### 8.3 Ekstraksi dan Penanganan Tanda Tangan Transparan
@@ -471,7 +477,7 @@ Skill ini dilengkapi dengan **46 Master Template Microsoft Word (.docx)** resmi 
 
 ### 9.1 Mekanisme Kop Surat Perwakilan Terpusat (`assets/unit_profiles.json`)
 Kop surat untuk unit perwakilan dan pusat dikonfigurasi secara modular. Profil mencakup nama instansi, alamat, nomor telepon/faks, email, website, kota kedudukan, serta kode unit naskah dinas:
-- **`papua_tengah`**: Perwakilan BPKP Provinsi Papua Tengah di Nabire (Kode Unit: `PW34`)
+- **`papua_tengah`**: Perwakilan BPKP Provinsi Papua Tengah di Nabire (Kode Unit: `PW36`)
 - **`kalsel`**: Perwakilan BPKP Provinsi Kalimantan Selatan di Banjarbaru (Kode Unit: `PW16`)
 - **`papua`**: Perwakilan BPKP Provinsi Papua di Jayapura (Kode Unit: `PW26`)
 - **`papua_barat`**: Perwakilan BPKP Provinsi Papua Barat di Manokwari (Kode Unit: `PW33`)
@@ -500,6 +506,6 @@ Untuk menambah unit kerja baru, cukup tambahkan entri JSON pada `assets/unit_pro
    ```bash
    python scripts/generate_naskah.py --jenis surat_tugas --unit kalsel --data payload.json --output Surat_Tugas_Kalsel.docx
    ```
-   *Secara otomatis kop surat tabel logo BPKP, nomor naskah (PW16 vs PW34), dan kota penandatanganan akan beralih ke Kalimantan Selatan tanpa mengubah kode generator.*
+   *Secara otomatis kop surat tabel logo BPKP, nomor naskah (PW16 vs PW36), dan kota penandatanganan akan beralih ke Kalimantan Selatan tanpa mengubah kode generator.*
 
 

@@ -10,7 +10,7 @@ import tempfile
 from zipfile import ZipFile
 from lxml import etree as E
 import openpyxl
-from schema import ROOT, VERSION, DATA, NARASI, BASE_ROLES, PIA_REQUIRED
+from schema import ROOT, VERSION, DATA, NARASI, PIA_REQUIRED, TEMPLATE_IDENTITY, PROFILE_FIELDS, JAM_MAKS_PER_HARI
 from office_io import recalculate_xlsx
 
 MONTHS=['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
@@ -91,6 +91,9 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
         for def_r,(key,_,_,_) in DATA.items():
             actual_r=key_to_row.get(key,def_r)
             data[key]=wb['DATA'].cell(actual_r,2).value
+        # Kunci opsional di luar skema (mis. UNIT_KERJA, KOP_BARIS2, JALUR_ST) juga dibaca bila ada di kolom E.
+        for key,r in key_to_row.items():
+            if key not in data:data[key]=wb['DATA'].cell(r,2).value
         version_val=None
         for r in range(wb['DATA'].max_row,1,-1):
             if wb['DATA'].cell(r,1).value=='Versi skema':version_val=wb['DATA'].cell(r,2).value;break
@@ -99,14 +102,8 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
         try:
             originals=json.loads((ROOT/'assets'/'profil_unit.json').read_text(encoding='utf-8'))
         except Exception:pass
-        if not nonempty(data.get('UNIT_KERJA')):data['UNIT_KERJA']=originals.get('unit','Perwakilan BPKP Provinsi Papua Tengah')
-        if not nonempty(data.get('KOP_BARIS1')):data['KOP_BARIS1']=originals.get('nama_kop_baris1','BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN')
-        if not nonempty(data.get('KOP_BARIS2')):data['KOP_BARIS2']=originals.get('nama_kop_baris2','PERWAKILAN PROVINSI PAPUA TENGAH')
-        if not nonempty(data.get('ALAMAT_UNIT')):data['ALAMAT_UNIT']=originals.get('alamat','Jalan Sam Ratulangi, Kelurahan Oyehe, Distrik Nabire')
-        if not nonempty(data.get('WILAYAH_KODEPOS')):data['WILAYAH_KODEPOS']=originals.get('wilayah_kodepos','Kabupaten Nabire, Provinsi Papua Tengah, Kode Pos: 98816')
-        if not nonempty(data.get('EMAIL_UNIT')):data['EMAIL_UNIT']=originals.get('email','papua.tengah@bpkp.go.id')
-        if not nonempty(data.get('WEBSITE_UNIT')):data['WEBSITE_UNIT']=originals.get('website','www.bpkp.go.id/papua.tengah')
-        if not nonempty(data.get('KOTA_UNIT')):data['KOTA_UNIT']=originals.get('kota','Nabire')
+        for key,field in PROFILE_FIELDS.items():
+            if not nonempty(data.get(key)):data[key]=originals.get(field,TEMPLATE_IDENTITY[field])
         if not nonempty(data.get('JALUR_ST')):data['JALUR_ST']='MANUAL'
         if not nonempty(data.get('JABATAN_KAPER')):data['JABATAN_KAPER']='Kepala Perwakilan'
         if not nonempty(data.get('TINGKAT_RISIKO')):data['TINGKAT_RISIKO']='Sedang'
@@ -162,8 +159,14 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
             if p['clean_nip'] not in allocations:issues.append('JAM_TIM: alokasi belum tersedia untuk '+p['name'])
             p['hours']=allocations.get(p['clean_nip'],[0.,0.,0.])
         if set(allocations)-{p['clean_nip'] for p in team}:issues.append('JAM_TIM memuat personel yang tidak ada dalam tim.')
-        r_jam=key_to_row.get('JAM_PER_HARI',47)
+        r_jam=key_to_row.get('JAM_PER_HARI',53)
         jam_day=number(data['JAM_PER_HARI'],f'DATA!B{r_jam}',issues,True)
+        if jam_day>JAM_MAKS_PER_HARI:issues.append(f'DATA!B{r_jam}: jam pengawasan per hari orang maksimal 6,5.')
+        phase_days=[number(data.get(k),k,[],True) for k in ['HARI_PERSIAPAN','HARI_PELAKSANAAN','HARI_PENYELESAIAN']]
+        # JAM_TIM bawaan = hari fase × B53; bila B53 sendiri melewati batas, satu pesan di atas cukup.
+        for p in (team if jam_day<=JAM_MAKS_PER_HARI else []):
+            for fase,h,n_days in zip(['persiapan','pelaksanaan','penyelesaian'],p['hours'],phase_days):
+                if n_days and h>n_days*JAM_MAKS_PER_HARI+1e-6:issues.append(f'JAM_TIM: jam {fase} {p["name"]} ({fmt(h)} jam untuk {fmt(n_days)} hari) melebihi 6,5 jam per hari orang.')
         dates={}
         for key in ['TANGGAL_ST','TANGGAL_PENGESAHAN','PERS_MULAI','PERS_SELESAI','LAKS_MULAI','LAKS_SELESAI','SELESAI_MULAI','SELESAI_AKHIR','TANGGAL_MULAI','TANGGAL_SELESAI','RPL','TANGGAL_PAKTA','TANGGAL_SURAT_PENGANTAR','TGL_KONSEP_LAPORAN']:
             if nonempty(data.get(key)):dates[key]=as_date(data[key],key,issues)
@@ -178,7 +181,7 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
             if dates['TANGGAL_MULAI']>dates['PERS_MULAI'] or dates['TANGGAL_SELESAI']<dates['SELESAI_AKHIR']:issues.append('Periode ST harus mencakup seluruh fase.')
             def workdays(a,b):return sum(1 for i in range(max(0,(b-a).days+1)) if (a+timedelta(days=i)).weekday()<5 and a+timedelta(days=i) not in holidays)
             days=workdays(dates['TANGGAL_MULAI'],dates['TANGGAL_SELESAI'])
-            r_hari=key_to_row.get('JUMLAH_HARI',77)
+            r_hari=key_to_row.get('JUMLAH_HARI',76)
             if number(data['JUMLAH_HARI'],f'DATA!B{r_hari}',issues)!=days:issues.append(f'DATA!B{r_hari} tidak cocok dengan hari kerja ST.')
             for start,end,duration in [('PERS_MULAI','PERS_SELESAI','HARI_PERSIAPAN'),('LAKS_MULAI','LAKS_SELESAI','HARI_PELAKSANAAN'),('SELESAI_MULAI','SELESAI_AKHIR','HARI_PENYELESAIAN')]:
                 if number(data[duration],duration,issues,True)!=workdays(dates[start],dates[end]):issues.append(duration+' tidak sama dengan hari kerja rentang fasenya.')
@@ -191,7 +194,8 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
                 ihp.append({'id':fmt(val_a),'information':fmt(val_b),'source':fmt(wb['IHP'].cell(r,3).value or '')})
             elif nonempty(val_a):
                 entry_text=str(val_a).strip()
-                m_prefix=re.match(r'^(?:\[?(IHP[-._\s]?\d+)\]?|[(\[]?(\d+)[)\]]?)\s*[-–—:.)]\s*(.*)$',entry_text,re.IGNORECASE)
+                # (?!\d): "1.234 desa ..." adalah angka ribuan, bukan butir nomor 1 berisi "234 desa ...".
+                m_prefix=re.match(r'^(?:\[?(IHP[-._\s]?\d+)\]?|[(\[]?(\d+)[)\]]?)\s*[-–—:.)](?!\d)\s*(.*)$',entry_text,re.IGNORECASE)
                 if not m_prefix:m_prefix=re.match(r'^(IHP[-._\s]?\d+)\s+(.*)$',entry_text,re.IGNORECASE)
                 if m_prefix:
                     raw_id=m_prefix.group(1) if m_prefix.group(1) else m_prefix.group(2)
@@ -202,21 +206,20 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
                 else:
                     ihp.append({'id':f'IHP-{len(ihp)+1:02d}','information':entry_text,'source':''})
         files={};sources={}
-        files={};sources={}
-        if jalur=='SIMA-NG' and nonempty(data.get('FILE_ST_SIMA')):
-            r_st_sima=key_to_row.get('FILE_ST_SIMA',0)
-            files[6]=source_path(data['FILE_ST_SIMA'],workbook,f'DATA!B{r_st_sima}',issues,True)
+        def cell(key):return f'DATA!B{key_to_row[key]}' if key in key_to_row else 'DATA '+key
+        # Jalur yang dipilih wajib disertai berkasnya; jangan diam-diam kembali ke templat manual.
+        if jalur=='SIMA-NG':
+            files[6]=source_path(data.get('FILE_ST_SIMA'),workbook,cell('FILE_ST_SIMA'),issues,True)
             for i,key in [(7,'FILE_KM4_SIMA'),(8,'FILE_KM5_SIMA')]:
-                if nonempty(data.get(key)):files[i]=source_path(data[key],workbook,f'DATA!B{key_to_row.get(key,0)}',issues)
+                if nonempty(data.get(key)):files[i]=source_path(data[key],workbook,cell(key),issues)
         if jenis=='PENGAWASAN':
             sumber_pia=fmt(data.get('SUMBER_PIA') or 'ISIAN').upper()
-            if sumber_pia=='FILE' and nonempty(data.get('FILE_LAPORAN_PIA')):
-                r_pia=key_to_row.get('FILE_LAPORAN_PIA',0)
-                files[9]=source_path(data['FILE_LAPORAN_PIA'],workbook,f'DATA!B{r_pia}',issues,True)
+            if sumber_pia=='FILE':
+                files[9]=source_path(data.get('FILE_LAPORAN_PIA'),workbook,cell('FILE_LAPORAN_PIA'),issues,True)
         for key in ['FILE_KAP','FILE_PEDOMAN']:
-            if nonempty(data.get(key)):sources[key]=source_path(data[key],workbook,f'DATA!B{key_to_row.get(key,0)}',issues,office_only=False)
+            if nonempty(data.get(key)):sources[key]=source_path(data[key],workbook,cell(key),issues,office_only=False)
         if not ihp and not nonempty(data.get('FILE_KAP')):issues.append('Isi Insilwas pada tab IHP.')
-        if data.get('UNIT_KERJA') and data.get('KOP_BARIS2') and fmt(data['UNIT_KERJA'])!='Perwakilan BPKP Provinsi Papua Tengah' and 'PAPUA TENGAH' in fmt(data['KOP_BARIS2']).upper():issues.append('Unit diubah tetapi kop masih Papua Tengah.')
+        if data.get('UNIT_KERJA') and data.get('KOP_BARIS2') and fmt(data['UNIT_KERJA'])!=TEMPLATE_IDENTITY['unit'] and 'PAPUA TENGAH' in fmt(data['KOP_BARIS2']).upper():issues.append('Unit diubah tetapi kop masih Papua Tengah.')
         for key in ['STATUS_CEK_PIA','STATUS_CEK_DPP','STATUS_CEK_RENCANA','STATUS_CEK_KM6']:
             if nonempty(data.get(key)) and fmt(data[key]).upper() not in ['TERSEDIA','BELUM','N/A']:issues.append(key+': gunakan TERSEDIA, BELUM, atau kosong.')
         if issues:raise InputError(issues)
@@ -303,6 +306,7 @@ def compile_plan(m,plan):
         if p['hours'][1]>0 and not person_tasks:issues.append('KM 6: personel beranggaran pelaksanaan belum diberi task: '+name)
         if person_tasks and p['hours'][1]<=0:issues.append('KM 6: pelaksana task tidak memiliki anggaran pelaksanaan: '+name)
         budget=p['hours'][1]*(1-conclusion);weight=sum(s['weight'] for s in person_tasks);assigned=0
+        if weight<=0:continue  # bobot tidak sah sudah tercatat sebagai issue
         for i,s in enumerate(person_tasks):
             allocation=round(budget-assigned,6) if i==len(person_tasks)-1 else round(budget*s['weight']/weight,6)
             s['hours_by_person'][name]=allocation;assigned+=allocation
