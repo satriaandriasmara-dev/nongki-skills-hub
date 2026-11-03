@@ -1239,16 +1239,17 @@ def add_cover_page(doc, logo_path: str = "",
                     tahun: str = "TAHUN 2026",
                     nomor: str = "", tanggal: str = ""):
     """
-    Bangun halaman cover (sampul) laporan BPKP standar.
+    Bangun halaman cover (sampul) laporan BPKP standar
+    (Peraturan BPKP 4/2026 BAB V-C.5.b.1), lihat SKILL.md Bagian 11.6.
 
     Layout:
-      - Logo BPKP (center, 4.2 cm)
-      - Nama Lembaga (bold 14pt, center)
-      - Unit Kerja (bold 14pt, center)
+      - Logo BPKP (center, 34 mm x 17 mm)
+      - Nama Lembaga (Arial 13 bold, center)
+      - Unit Kerja (Arial 12 bold, huruf kapital, center)
       - Spasi tengah (3x paragraf kosong)
-      - Judul laporan (bold 13pt, center)
-      - Subjudul (bold 13pt, center)
-      - Tahun (bold 13pt, center)
+      - Judul laporan (bold 14pt, center)
+      - Subjudul (bold 14pt, center)
+      - Tahun (bold 14pt, center)
       - Spasi bawah (4x paragraf kosong)
       - Tabel Nomor/Tanggal (borderless, 2 baris x 3 kolom):
           [Label | : | Nilai]  (bold 11pt)
@@ -1267,13 +1268,13 @@ def add_cover_page(doc, logo_path: str = "",
         p_logo.paragraph_format.space_before = Pt(24)
         p_logo.paragraph_format.space_after = Pt(12)
         r_logo = p_logo.add_run()
-        r_logo.add_picture(logo_path, width=Cm(4.2))
+        r_logo.add_picture(logo_path, width=Cm(3.4), height=Cm(1.7))
 
-    # Header Nama Instansi
+    # Header Nama Instansi (lembaga Arial 13 tebal, unit kerja kapital Arial 12 tebal)
     add_p(doc, lembaga, space_before=Pt(0), space_after=Pt(2),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
-    add_p(doc, unit_kerja, space_before=Pt(0), space_after=Pt(48),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
+    add_p(doc, unit_kerja.upper(), space_before=Pt(0), space_after=Pt(48),
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(12))
 
     # Spasi Tengah
     for _ in range(3):
@@ -1281,11 +1282,11 @@ def add_cover_page(doc, logo_path: str = "",
 
     # Judul Utama Laporan
     add_p(doc, judul, space_before=Pt(0), space_after=Pt(4),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
     add_p(doc, subjudul, space_before=Pt(0), space_after=Pt(4),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
     add_p(doc, tahun, space_before=Pt(0), space_after=Pt(48),
-          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(13))
+          align=WD_ALIGN_PARAGRAPH.CENTER, bold=True, size=Pt(14))
 
     # Spasi Bawah
     for _ in range(4):

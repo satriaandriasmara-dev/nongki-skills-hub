@@ -641,12 +641,12 @@ Sistem indentasi menggunakan prinsip **cascade**: posisi nomor setiap level berh
 
 | Level / Elemen | `ilvl` | Left Indent | First Line (Hanging) | Tab Stop | Perataan & Gaya Font |
 |---|---|---|---|---|---|
-| **Topik Utama (`Heading 3`)** | 1 | `0,50"` (720 dxa) | `-0,25"` (-360 dxa) | `720 dxa` | Left, Arial 12 pt Bold |
-| **Simpulan Topik** (paragraf pembuka) | — | `0,50"` (720 dxa) | `0,00"` | — | Justified, Arial 12 pt Regular |
-| **Sub-Heading Temuan** (`a.`, `b.`) | 2 | `0,75"` (1080 dxa) | `-0,25"` (-360 dxa) | `1440 dxa` | Justified, Arial 12 pt **Bold** |
+| **Topik Utama (`Heading 3`)** | 1 | `0,75"` (1080 dxa) | `-0,25"` (-360 dxa) | `1080 dxa` | Left, Arial 12 pt Bold |
+| **Simpulan Topik** (paragraf pembuka) | — | `0,75"` (1080 dxa) | `0,00"` | — | Justified, Arial 12 pt Regular |
+| **Sub-Heading Temuan** (`a.`, `b.`) | 2 | `1,00"` (1440 dxa) | `-0,25"` (-360 dxa) | `1440 dxa` | Justified, Arial 12 pt **Bold** |
 | **Pengantar Kondisi** ("Kondisi di tingkat...") | — | `1,00"` (1440 dxa) | `0,00"` | — | Justified, Arial 12 pt Regular |
 | **Rincian Lokus** (`1)`, `2)`) | 3 | `1,25"` (1800 dxa) | `-0,25"` (-360 dxa) | `1800 dxa` | Justified, Arial 12 pt Regular |
-| **Detail Item** (`a)`, `b)`) | 4 | `1,25"` (1800 dxa) | `-0,25"` (-360 dxa) | `1800 dxa` | Justified, Arial 12 pt Regular |
+| **Detail Item** (`a)`, `b)`) | 4 | `1,50"` (2160 dxa) | `-0,25"` (-360 dxa) | `2160 dxa` | Justified, Arial 12 pt Regular |
 | **Kriteria / Penyebab / Akibat / Rekomendasi** | — | `1,25"` (1800 dxa) | `0,00"` | — | Justified, Arial 12 pt Regular |
 
 > **Catatan notasi:** Tabel *Formula Cascade* di atas menggunakan notasi numbering.xml `w:ind left` (posisi teks), sedangkan kolom "Nomor di" di tabel formula adalah posisi awal nomor. Tabel *Penempatan Level* di bawah menggunakan notasi paragraf manual (`Left Indent` = posisi teks; `First Line` = hanging). Kedua tabel ini ekuivalen dan saling konsisten.
