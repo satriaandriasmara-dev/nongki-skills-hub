@@ -1,7 +1,7 @@
 """Buat workbook isian mandiri; tidak mengubah workbook autoST asal."""
 import argparse
-import json
 from pathlib import Path
+import sys
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -54,63 +54,69 @@ def dropdown(ws, cells, choices):
     ws.add_data_validation(dv)
     for addr in cells:dv.add(addr)
 
-def create(path, overwrite=False):
+PEGAWAI_SOURCES=[ROOT/'assets'/'Isian_DATA_MPP_BPKP.xlsx', Path('D:/autoST/KM4_KM5_KM6.xlsx')]
+
+def create(path, overwrite=False, with_pegawai=False, pegawai_source=None):
     wb=Workbook();wb.remove(wb.active);wb.calculation=CalcProperties(calcId=191029,fullCalcOnLoad=True)
 
-    # 1. Load and copy Pegawai sheet (HIDDEN)
+    # 1. Versi bersih (default) tanpa data kepegawaian; --with-pegawai menyalin sheet Pegawai lokal (HIDDEN)
     pegawai_src = None
-    for candidate in [ROOT/'assets'/'Isian_DATA_MPP_BPKP.xlsx', Path('D:/autoST/KM4_KM5_KM6.xlsx')]:
-        if candidate.is_file():
-            try:
-                src_wb = openpyxl.load_workbook(candidate, data_only=True)
-                if 'Pegawai' in src_wb.sheetnames:
-                    pegawai_src = src_wb['Pegawai'];break
-            except Exception: pass
-    ws_peg = wb.create_sheet('Pegawai')
-    if pegawai_src:
+    if with_pegawai:
+        for candidate in ([Path(pegawai_source)] if pegawai_source else PEGAWAI_SOURCES):
+            if candidate.is_file():
+                try:
+                    src_wb = openpyxl.load_workbook(candidate, data_only=True)
+                    if 'Pegawai' in src_wb.sheetnames:
+                        pegawai_src = src_wb['Pegawai'];break
+                except Exception: pass
+        if pegawai_src is None:print('Peringatan: sheet Pegawai tidak ditemukan; NIP diisi manual.',file=sys.stderr)
+    if pegawai_src is not None:
+        ws_peg = wb.create_sheet('Pegawai')
         for r in range(1, pegawai_src.max_row + 1):
             for c in range(1, pegawai_src.max_column + 1):
                 ws_peg.cell(r, c, pegawai_src.cell(r, c).value)
-    ws_peg.column_dimensions['A'].width = 38
-    ws_peg.column_dimensions['B'].width = 25
-    ws_peg.column_dimensions['C'].width = 15
-    ws_peg.column_dimensions['D'].width = 13
-    ws_peg.column_dimensions['E'].width = 18
-    ws_peg.sheet_state = 'hidden'  # HIDE sheet Pegawai!
-
-    peg_max = ws_peg.max_row if ws_peg.max_row > 1 else 6587
-    wb.defined_names['Daftar_Nama'] = DefinedName('Daftar_Nama', attr_text=f'Pegawai!$A$2:$A${peg_max}')
-    wb.defined_names['Daftar_Bidang'] = DefinedName('Daftar_Bidang', attr_text='Pegawai!$E$2:$E$7')
+        ws_peg.column_dimensions['A'].width = 38
+        ws_peg.column_dimensions['B'].width = 25
+        ws_peg.column_dimensions['C'].width = 15
+        ws_peg.column_dimensions['D'].width = 13
+        ws_peg.column_dimensions['E'].width = 18
+        ws_peg.sheet_state = 'hidden'  # HIDE sheet Pegawai!
+        wb.defined_names['Daftar_Nama'] = DefinedName('Daftar_Nama', attr_text=f'Pegawai!$A$2:$A${ws_peg.max_row}')
+        wb.defined_names['Daftar_Bidang'] = DefinedName('Daftar_Bidang', attr_text='Pegawai!$E$2:$E$7')
 
     # 2. Sheet DATA
     ws=wb.create_sheet('DATA');ws.sheet_view.showGridLines=False
     ws['A1']='DATA MASTER PENUGASAN — MPP BPKP';ws.merge_cells('A1:D1')
     ws['A2']='Kuning = isian pengguna; Abu-abu = formula otomatis. Contoh isian nyata tersedia langsung pada Kolom D.';ws.merge_cells('A2:D2');ws.row_dimensions[2].height=32
     
-    for addr,value in [('A3','TIM PENGAWASAN'),('B3','Nama Pegawai'),('C3','NIP (Otomatis)'),('D3','Petunjuk & Contoh Isian')]:ws[addr]=value
-    
+    # Tanpa data Pegawai (templat publik), NIP diketik manual: VLOOKUP ke sheet kosong selalu menghasilkan "".
+    lookup=pegawai_src is not None
+    for addr,value in [('A3','TIM PENGAWASAN'),('B3','Nama Pegawai'),('C3','NIP (Otomatis)' if lookup else 'NIP (Teks 18 Digit)'),('D3','Petunjuk & Contoh Isian')]:ws[addr]=value
+
+    def nip_cell(r):
+        if lookup:calculated(ws.cell(r,3),f'=IF(B{r}="","",IFERROR(VLOOKUP(B{r}, Pegawai!$A:$B, 2, FALSE), ""))',explanation='NIP terisi otomatis saat Nama dipilih dari dropdown.')
+        else:editable(ws.cell(r,3),explanation='Ketik NIP 18 digit sebagai teks.')
+        ws.cell(r,3).number_format='@'
+
     # Rows 4 to 26: Tim Pengawasan (PM, PT, KT, AT 1..20)
     for r,role in enumerate(BASE_ROLES,4):
-        ws.cell(r,1,role);editable(ws.cell(r,2))
-        calculated(ws.cell(r,3),f'=IF(B{r}="","",IFERROR(VLOOKUP(B{r}, Pegawai!$A:$B, 2, FALSE), ""))',explanation='NIP terisi otomatis saat Nama dipilih dari dropdown.')
-        ws.cell(r,3).number_format='@'
+        ws.cell(r,1,role);editable(ws.cell(r,2));nip_cell(r)
         if r<=6:
-            guide_cell(ws.cell(r,4),'Pilih nama dari dropdown atau ketik nama (NIP terisi otomatis). Wajib diisi.')
+            guide_cell(ws.cell(r,4),'Pilih nama dari dropdown atau ketik nama (NIP terisi otomatis). Wajib diisi.' if lookup else 'Ketik nama dan NIP 18 digit. Wajib diisi.')
         else:
-            guide_cell(ws.cell(r,4),f'Anggota Tim {r-6}: Pilih nama dari dropdown (baris anggota yang tidak digunakan cukup dikosongkan).')
-    
+            guide_cell(ws.cell(r,4),f'Anggota Tim {r-6}: '+('Pilih nama dari dropdown' if lookup else 'Ketik nama dan NIP')+' (baris anggota yang tidak digunakan cukup dikosongkan).')
+
     # Row 27: Kepala Perwakilan
-    ws['A27']='Kepala Perwakilan';editable(ws['B27'])
-    calculated(ws['C27'],'=IF(B27="","",IFERROR(VLOOKUP(B27, Pegawai!$A:$B, 2, FALSE), ""))')
-    ws['C27'].number_format='@'
-    guide_cell(ws['D27'],'Pilih nama Kepala Perwakilan penandatangan Surat Tugas (NIP terisi otomatis).')
+    ws['A27']='Kepala Perwakilan';editable(ws['B27']);nip_cell(27)
+    guide_cell(ws['D27'],'Pilih nama Kepala Perwakilan penandatangan Surat Tugas (NIP terisi otomatis).' if lookup else 'Ketik nama dan NIP Kepala Perwakilan penandatangan Surat Tugas.')
 
     # Data Validation for Names (B4:B27)
-    dv_nama = DataValidation(type='list', formula1='Daftar_Nama', allow_blank=True, showInputMessage=True, showErrorMessage=True, errorTitle='Peringatan Nama Pegawai', error='Nama tidak terdaftar dalam database pegawai. Tetap gunakan?', promptTitle='Pilih Nama Pegawai', prompt='Ketik atau pilih nama pegawai dari daftar dropdown.', errorStyle='warning')
-    ws.add_data_validation(dv_nama);dv_nama.add('B4:B27')
+    if lookup:
+        dv_nama = DataValidation(type='list', formula1='Daftar_Nama', allow_blank=True, showInputMessage=True, showErrorMessage=True, errorTitle='Peringatan Nama Pegawai', error='Nama tidak terdaftar dalam database pegawai. Tetap gunakan?', promptTitle='Pilih Nama Pegawai', prompt='Ketik atau pilih nama pegawai dari daftar dropdown.', errorStyle='warning')
+        ws.add_data_validation(dv_nama);dv_nama.add('B4:B27')
 
     # Data Validation for Bidang (B29)
-    dv_bidang = DataValidation(type='list', formula1='Daftar_Bidang', allow_blank=True, showInputMessage=True, showErrorMessage=True, errorTitle='Bidang Tidak Valid', error='Silakan pilih salah satu bidang dari daftar yang tersedia.', promptTitle='Pilih Bidang', prompt='Pilih bidang penugasan dari daftar dropdown.', errorStyle='warning')
+    dv_bidang = DataValidation(type='list', formula1='Daftar_Bidang' if lookup else '"Umum,IPP,APD,AN,Investigasi,P3A"', allow_blank=True, showInputMessage=True, showErrorMessage=True, errorTitle='Bidang Tidak Valid', error='Silakan pilih salah satu bidang dari daftar yang tersedia.', promptTitle='Pilih Bidang', prompt='Pilih bidang penugasan dari daftar dropdown.', errorStyle='warning')
     ws.add_data_validation(dv_bidang);dv_bidang.add('B29')
 
     contoh_isian = {
@@ -244,4 +250,8 @@ def create(path, overwrite=False):
     wb.save(path);print(path)
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('output',type=Path);args=p.parse_args();create(args.output)
+    p=argparse.ArgumentParser(description='Buat workbook isian MPP baru.');p.add_argument('output',type=Path)
+    p.add_argument('--overwrite',action='store_true',help='Timpa berkas tujuan bila sudah ada')
+    p.add_argument('--with-pegawai',action='store_true',help='Salin sheet Pegawai lokal untuk dropdown nama dan NIP otomatis (data privat)')
+    p.add_argument('--pegawai-source',type=Path,help='Workbook berisi sheet Pegawai (default: cari di assets lalu D:/autoST/KM4_KM5_KM6.xlsx)')
+    args=p.parse_args();create(args.output,overwrite=args.overwrite,with_pegawai=args.with_pegawai,pegawai_source=args.pegawai_source)

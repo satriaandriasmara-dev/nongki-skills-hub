@@ -901,7 +901,7 @@ from bpkp_docx_engine import create_document
 
 ```python
 import sys
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\laporan-pengawasan-bpkp\scripts")
+sys.path.insert(0, r"<skills-dir>/laporan-pengawasan-bpkp/scripts")
 
 from bpkp_docx_engine import create_document, add_p, add_heading_2, add_signature_block
 from lhp_builder import build_bab_i_template, build_bab_ii_template, build_bab_iii_temuan

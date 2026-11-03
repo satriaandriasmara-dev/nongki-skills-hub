@@ -18,7 +18,7 @@ Sheet `PANDUAN` ditiadakan karena petunjuk dan contoh isian realistis telah dise
 
 DATA memuat seluruh susunan tim di B4:B26 (PM di B4, PT di B5, KT di B6, dan Anggota Tim 1 s.d. 20 di B7:B26). Baris anggota yang tidak digunakan cukup dikosongkan. NIP di C4:C27 terisi otomatis via VLOOKUP dari database sheet Pegawai yang disembunyikan. Isian golongan ditiadakan karena dokumen penugasan pengawasan BPKP tidak mensyaratkan golongan.
 
-Isian tanpa output langsung (Lokasi penugasan, Kode unit, Path output SIMA-NG, serta rincian profil kop perwakilan) telah dibersihkan dari sheet DATA. Profil unit dan kop resmi otomatis menggunakan nilai baku dari `profil_unit.json`. Status checklist MPP otomatis ditetapkan `TERSEDIA` (atau `N/A` untuk penugasan PIA awal) saat dokumen dibuat.
+Isian tanpa output langsung (Lokasi penugasan, Kode unit, Path output SIMA-NG, serta rincian profil kop perwakilan) telah dibersihkan dari sheet DATA. Profil unit dan kop resmi otomatis menggunakan nilai baku dari `profil_unit.json`; ubah berkas itu (atau tambahkan baris DATA berkunci `UNIT_KERJA`, `KOP_BARIS1`, `KOP_BARIS2`, `ALAMAT_UNIT`, `WILAYAH_KODEPOS`, `EMAIL_UNIT`, `WEBSITE_UNIT`, `KOTA_UNIT` di kolom E) untuk unit selain Papua Tengah. Status checklist MPP otomatis ditetapkan `TERSEDIA` (atau `N/A` untuk penugasan PIA awal) saat dokumen dibuat.
 
 ## Kalender dan anggaran
 

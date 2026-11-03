@@ -756,7 +756,8 @@ def build_notisi_temuan_5c(doc, temuan: dict, num_id: int):
     kondisi = temuan.get("kondisi", "")
     sebab = temuan.get("sebab", "")
     akibat = temuan.get("akibat", "")
-    rekom = temuan.get("rekom", "")
+    # Kunci terdokumentasi adalah "rekomendasi"; "rekom" tetap diterima untuk data lama.
+    rekom = temuan.get("rekomendasi", temuan.get("rekom", ""))
     table_data = temuan.get("table")
 
     # Judul butir temuan: Heading 3 + numbering level 1 (1.)
@@ -894,9 +895,6 @@ def _add_signature_grid(doc, left_lines, right_lines, tanggal=""):
         f'</w:tblBorders>'
     )
     tblPr.append(borders)
-
-
-print("naskah_dinas_helper.py loaded - BPKP Tata Naskah Dinas helper ready.")
 
 
 # =====================================================================

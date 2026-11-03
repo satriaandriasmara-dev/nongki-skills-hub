@@ -19,7 +19,7 @@ penugasan aktual.
 
 Contoh penggunaan minimal::
 
-    from bpkp_docx_engine import create_document, save_document
+    from bpkp_docx_engine import create_document
     from lhp_builder import build_bab_i_template, build_bab_ii_template
 
     doc = create_document()
@@ -234,9 +234,6 @@ def build_temuan_5c(doc, temuan: dict, num_id: int):
         add_recommendation_block(doc, rekomendasi, num_id=num_id, ilvl=4)
     elif isinstance(rekomendasi, list):
         add_recommendation_block(doc, rekomendasi, num_id=num_id, ilvl=4)
-
-
-print("lhp_builder.py loaded - BPKP LHP/LHE builder template ready.")
 
 
 # =====================================================================

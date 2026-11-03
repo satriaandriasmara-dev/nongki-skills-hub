@@ -190,20 +190,22 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
     Gantikan kop teks bawaan dengan Tabel Kop Resmi 2 kolom + Logo BPKP + Garis Tebal Bawah
     sesuai standar Peraturan BPKP 4/2026.
     """
-    # 1. Deteksi dan bersihkan 5 baris kop teks di awal dokumen
-    del_indices = []
+    # 1. Deteksi dan hapus 5 baris kop teks di awal dokumen (termasuk logo dan
+    #    baris alamat), agar tidak tersisa baris kosong atau alamat ganda di bawah tabel kop.
+    kop_paragraphs = []
     for i, p in enumerate(doc.paragraphs[:7]):
         txt = p.text.strip()
         if any(keyword in txt for keyword in [
             "BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN",
             "UNIT KERJA",
+            "(alamat)",
             "nomor telepon",
             "Website www.bpkp.go.id"
         ]):
-            del_indices.append(p)
-            
-    for p in del_indices:
-        p.text = ""
+            kop_paragraphs.append(p)
+
+    for p in kop_paragraphs:
+        p._p.getparent().remove(p._p)
 
     # 2. Sisipkan tabel kop di posisi paling atas
     # Buat tabel 1 row x 2 cols
@@ -285,6 +287,46 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
     doc._body._element.insert(0, table._tbl)
 
 
+_NOMOR_PLACEHOLDER = re.compile(r"\((kode klasifikasi arsip|nomor urut naskah dinas)\)", re.IGNORECASE)
+
+
+def _set_paragraph_text(paragraph, text: str):
+    """Tulis ulang teks paragraf memakai format run pertama (bold/ukuran templat tetap)."""
+    runs = paragraph.runs
+    if not runs:
+        paragraph.add_run(text)
+        return
+    runs[0].text = text
+    for r in runs[1:]:
+        r.text = ""
+
+
+def apply_nomor(doc: docx.Document, formatted_nomor: str) -> int:
+    """
+    Isi nomor naskah pada baris "NOMOR ..." (paragraf) atau baris tabel "Nomor :"
+    yang masih memuat placeholder nomor templat. Mengembalikan jumlah lokasi terisi.
+    """
+    count = 0
+    for p in doc.paragraphs[:25]:
+        m = re.match(r"\s*NOMOR\s*(:?)", p.text)
+        if m and _NOMOR_PLACEHOLDER.search(p.text):
+            _set_paragraph_text(p, f"NOMOR{m.group(1)} {formatted_nomor}")
+            count += 1
+    for table in doc.tables[:3]:
+        for row in table.rows[:4]:
+            cells = row.cells
+            if not cells or not cells[0].text.strip().startswith("Nomor"):
+                continue
+            for cell in cells[1:]:
+                if _NOMOR_PLACEHOLDER.search(cell.text) and cell.paragraphs:
+                    _set_paragraph_text(cell.paragraphs[0], formatted_nomor)
+                    for extra in cell.paragraphs[1:]:
+                        _set_paragraph_text(extra, "")
+                    count += 1
+                    break
+    return count
+
+
 def populate_personel_table(doc: docx.Document, personel_list: List[Dict[str, str]]):
     """
     Isi tabel personil tim pada Surat Tugas.
@@ -331,15 +373,24 @@ def generate_document(template_key: str,
     menginjeksi data payload, dan menghasilkan naskah dinas Word final.
     """
     registry = load_registry()
-    key = template_key.lower().replace("-", "_").replace(" ", "_")
-    
+    # Sebagian ID registry memuat "-" (mis. notisi_kedua_-_tim); bandingkan dalam bentuk
+    # ternormalisasi agar "notisi_kedua_-_tim", "notisi-kedua-tim", dan "Notisi Kedua Tim" sama.
+    def _norm(k: str) -> str:
+        return re.sub(r"[\s_\-]+", "_", k.lower()).strip("_")
+
+    key = template_key.lower()
     if key not in registry:
-        # Cari template yang mendekati
-        matched = [k for k in registry if key in k]
-        if matched:
-            key = matched[0]
+        normalized = {_norm(k): k for k in registry}
+        wanted = _norm(template_key)
+        if wanted in normalized:
+            key = normalized[wanted]
         else:
-            raise ValueError(f"Template '{template_key}' tidak ditemukan dalam registry. Gunakan --list untuk melihat.")
+            # Cari template yang mendekati
+            matched = [k for n, k in normalized.items() if wanted in n]
+            if matched:
+                key = matched[0]
+            else:
+                raise ValueError(f"Template '{template_key}' tidak ditemukan dalam registry. Gunakan --list untuk melihat.")
 
     tpl_info = registry[key]
     tpl_file = os.path.join(_TEMPLATES_DIR, tpl_info["filename"])
@@ -372,7 +423,11 @@ def generate_document(template_key: str,
     konseptor = payload.get("konseptor", "2")
     kd_naskah = tpl_info.get("kode_naskah", "ND")
 
+    # Kode keamanan (SR/R/T) hanya untuk surat dinas; Biasa tanpa kode.
+    kd_keamanan = payload.get("kode_keamanan", "")
     formatted_nomor = f"{kd_arsip}/{kd_naskah}-{no_urut}/{kd_unit}/{konseptor}/{thn}"
+    if kd_keamanan:
+        formatted_nomor = f"{kd_keamanan}/{formatted_nomor}"
     if payload.get("nomor_lengkap"):
         formatted_nomor = payload["nomor_lengkap"]
 
@@ -412,17 +467,12 @@ def generate_document(template_key: str,
     if "replacements" in payload:
         replacements.update(payload["replacements"])
 
+    # Nomor naskah harus diterapkan SEBELUM penggantian placeholder umum; setelahnya
+    # pola "(kode klasifikasi arsip)" sudah hilang dan --nomor/nomor_lengkap terabaikan.
+    apply_nomor(doc, formatted_nomor)
+
     # Jalankan penggantian teks placeholder
     replace_all_placeholders(doc, replacements)
-
-    # Khusus nomor surat/naskah jika ada pola regex NOMOR ...
-    for p in doc.paragraphs[:15]:
-        if "NOMOR" in p.text and ("kode klasifikasi" in p.text or "nomor urut" in p.text):
-            p.text = f"NOMOR {formatted_nomor}"
-            for r in p.runs:
-                r.font.name = "Arial"
-                r.font.size = Pt(11)
-                r.font.bold = True
 
     # 3. Tangani Injeksi Tabel Personil (untuk Surat Tugas)
     if "personel" in payload or "tim" in payload:

@@ -14,7 +14,7 @@ import tempfile
 from zipfile import ZipFile, ZIP_DEFLATED
 from lxml import etree as E
 import openpyxl
-from schema import ROOT, VERSION, DATA, NARASI, BASE_ROLES, PIA_REQUIRED
+from schema import ROOT, VERSION, TEMPLATE_IDENTITY, PROFILE_FIELDS
 from office_io import recalculate_xlsx, render_documents
 
 W='http://schemas.openxmlformats.org/wordprocessingml/2006/main'
@@ -196,25 +196,24 @@ def adapt_document(root,num,m,v):
         if len(team)<=6:ts[2].getparent().remove(ts[2]);collapse_section(root)
 
 def fill_docx(source,destination,num,model,values):
-    originals=json.loads((ROOT/'assets'/'profil_unit.json').read_text(encoding='utf-8'));d=model['data']
-    substitutions={
-        'Perwakilan BPKP Provinsi Papua Tengah':fmt(d['UNIT_KERJA']),
-        originals['nama_kop_baris1']:fmt(d['KOP_BARIS1']),originals['nama_kop_baris2']:fmt(d['KOP_BARIS2']),
-        originals['alamat']:fmt(d['ALAMAT_UNIT']),originals['wilayah_kodepos']:fmt(d['WILAYAH_KODEPOS']),
-        originals['email']:fmt(d['EMAIL_UNIT']),originals['website']:fmt(d['WEBSITE_UNIT']),
-        'Nabire,':fmt(d['KOTA_UNIT'])+',',
-    }
+    # Kunci = teks asli templat (TEMPLATE_IDENTITY), bukan profil_unit.json; bila profil diubah ke
+    # unit lain, kop templat Papua Tengah tetap terganti.
+    d=model['data']
+    substitutions={TEMPLATE_IDENTITY[field]:fmt(d[key]) for key,field in PROFILE_FIELDS.items() if field!='kota'}
+    substitutions[TEMPLATE_IDENTITY['kota']+',']=fmt(d['KOTA_UNIT'])+','
     with ZipFile(source) as zi,ZipFile(destination,'w',ZIP_DEFLATED) as zo:
         for item in zi.infolist():
             payload=zi.read(item.filename)
             if item.filename.startswith('word/') and item.filename.endswith('.xml'):
                 root=E.fromstring(payload)
-                if item.filename=='word/document.xml':adapt_document(root,num,model,values)
-                tokens(root,values)
+                # Ganti identitas unit pada teks templat saja, sebelum isian pengguna masuk;
+                # alamat objek seperti "Jl. Merdeka, Nabire," tidak boleh ikut berubah.
                 for n in root.xpath('//w:t',namespaces=NS):
                     s=n.text or ''
                     for a,b in substitutions.items():s=s.replace(a,b)
                     n.text=s
+                if item.filename=='word/document.xml':adapt_document(root,num,model,values)
+                tokens(root,values)
                 if TOKEN.search(text(root)):raise RuntimeError('Penanda isian tersisa pada '+item.filename)
                 payload=E.tostring(root,xml_declaration=True,encoding='UTF-8',standalone=True)
             zo.writestr(item,payload)
@@ -266,7 +265,7 @@ def generate(model,output_root,pdf=True):
 
 def main():
     p=argparse.ArgumentParser(description='Buat seluruh paket MPP dari workbook isian.');p.add_argument('workbook',type=Path)
-    p.add_argument('--content',type=Path,help='Rancangan risiko/DPP/KM 6 yang disusun otomatis oleh skill, bukan isian pengguna');p.add_argument('--inspect',action='store_true',help='Baca fakta dan anggaran untuk penyusunan rancangan');p.add_argument('--output-root',type=Path,default=Path('D:/autoST/Hasil_MPP'));p.add_argument('--check',action='store_true',help='Preflight saja, tanpa folder hasil')
+    p.add_argument('--content',type=Path,help='Rancangan risiko/DPP/KM 6 yang disusun otomatis oleh skill, bukan isian pengguna');p.add_argument('--inspect',action='store_true',help='Baca fakta dan anggaran untuk penyusunan rancangan');p.add_argument('--output-root',type=Path,default=Path('Hasil_MPP'),help='Folder induk hasil (default: Hasil_MPP pada folder kerja)');p.add_argument('--check',action='store_true',help='Preflight saja, tanpa folder hasil')
     p.add_argument('--no-pdf',action='store_true');p.add_argument('--cached',action='store_true',help='Gunakan cache yang sudah dihitung Excel; tanpa mengubah file sumber')
     a=p.parse_args()
     try:

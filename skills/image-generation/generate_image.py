@@ -126,7 +126,10 @@ def save(result: dict, prompt: str, out_path: Path | None) -> list[Path]:
             path = DEFAULT_OUT_DIR / f"{name}.{ext}"
         else:
             base = Path(out_path)
-            path = base if base.suffix else base.with_suffix(f"_{i}.{ext}" if multi else f".{ext}")
+            # with_suffix() rejects "_0.png" (suffix must start with "."), so build the
+            # name explicitly; with --n > 1 every image gets its own index.
+            stem, suffix = (base.stem, base.suffix) if base.suffix else (base.name, f".{ext}")
+            path = base.with_name(f"{stem}_{i}{suffix}" if multi else f"{stem}{suffix}")
             path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(img_bytes)
         saved.append(path)
@@ -134,7 +137,7 @@ def save(result: dict, prompt: str, out_path: Path | None) -> list[Path]:
         revised = item.get("revised_prompt")
         if revised and not multi:
             sidecar = path.with_suffix(f".{ext}.revised.md")
-            sidecar.write_text(f"Prompt: {prompt}\n\nRevised: {revised}\n")
+            sidecar.write_text(f"Prompt: {prompt}\n\nRevised: {revised}\n", encoding="utf-8")
 
     return saved
 
@@ -156,6 +159,14 @@ def main() -> int:
                    choices=["b64_json", "url"],
                    help="Response format (default: b64_json)")
     args = p.parse_args()
+
+    # Windows consoles/pipes often default to cp1252, which cannot print "→"/"✓".
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+    # Accept "https://host/api/" or ".../v1" too; the endpoint path appends /v1 itself.
+    args.base = re.sub(r"/v1$", "", args.base.rstrip("/"))
 
     if not args.base:
         print("ERROR: No API base URL configured. Set IMAGE_API_BASE (e.g. "

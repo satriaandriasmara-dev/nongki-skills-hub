@@ -345,7 +345,7 @@ scripts/
 
 ```python
 import sys
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\tata-naskah-dinas-bpkp\scripts")
+sys.path.insert(0, r"<skills-dir>/tata-naskah-dinas-bpkp/scripts")
 
 from naskah_dinas_helper import (
     add_kop_surat, add_nota_dinas_header, add_surat_tugas_header,
@@ -353,7 +353,7 @@ from naskah_dinas_helper import (
 )
 
 # Engine inti (dari skill laporan-pengawasan-bpkp)
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\laporan-pengawasan-bpkp\scripts")
+sys.path.insert(0, r"<skills-dir>/laporan-pengawasan-bpkp/scripts")
 from bpkp_docx_engine import create_document
 ```
 
@@ -371,8 +371,8 @@ from bpkp_docx_engine import create_document
 
 ```python
 import sys
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\tata-naskah-dinas-bpkp\scripts")
-sys.path.insert(0, r"C:\Users\Admin\.agents\skills\laporan-pengawasan-bpkp\scripts")
+sys.path.insert(0, r"<skills-dir>/tata-naskah-dinas-bpkp/scripts")
+sys.path.insert(0, r"<skills-dir>/laporan-pengawasan-bpkp/scripts")
 
 from bpkp_docx_engine import create_document
 from naskah_dinas_helper import add_kop_surat, add_nota_dinas_header
