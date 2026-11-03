@@ -434,7 +434,7 @@ def generate_document(template_key: str,
     # Format nomor naskah
     kd_arsip = payload.get("kode_klasifikasi", "PW.01.03")
     no_urut = payload.get("nomor_urut", "101")
-    kd_unit = payload.get("kode_unit", profile.get("kode_unit", "PW34"))
+    kd_unit = payload.get("kode_unit", profile.get("kode_unit", "PW36"))
     konseptor = payload.get("konseptor", "2")
     kd_naskah = tpl_info.get("kode_naskah", "ND")
 

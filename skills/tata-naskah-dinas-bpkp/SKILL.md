@@ -471,7 +471,7 @@ Skill ini dilengkapi dengan **46 Master Template Microsoft Word (.docx)** resmi 
 
 ### 9.1 Mekanisme Kop Surat Perwakilan Terpusat (`assets/unit_profiles.json`)
 Kop surat untuk unit perwakilan dan pusat dikonfigurasi secara modular. Profil mencakup nama instansi, alamat, nomor telepon/faks, email, website, kota kedudukan, serta kode unit naskah dinas:
-- **`papua_tengah`**: Perwakilan BPKP Provinsi Papua Tengah di Nabire (Kode Unit: `PW34`)
+- **`papua_tengah`**: Perwakilan BPKP Provinsi Papua Tengah di Nabire (Kode Unit: `PW36`)
 - **`kalsel`**: Perwakilan BPKP Provinsi Kalimantan Selatan di Banjarbaru (Kode Unit: `PW16`)
 - **`papua`**: Perwakilan BPKP Provinsi Papua di Jayapura (Kode Unit: `PW26`)
 - **`papua_barat`**: Perwakilan BPKP Provinsi Papua Barat di Manokwari (Kode Unit: `PW33`)
@@ -500,6 +500,6 @@ Untuk menambah unit kerja baru, cukup tambahkan entri JSON pada `assets/unit_pro
    ```bash
    python scripts/generate_naskah.py --jenis surat_tugas --unit kalsel --data payload.json --output Surat_Tugas_Kalsel.docx
    ```
-   *Secara otomatis kop surat tabel logo BPKP, nomor naskah (PW16 vs PW34), dan kota penandatanganan akan beralih ke Kalimantan Selatan tanpa mengubah kode generator.*
+   *Secara otomatis kop surat tabel logo BPKP, nomor naskah (PW16 vs PW36), dan kota penandatanganan akan beralih ke Kalimantan Selatan tanpa mengubah kode generator.*
 
 
