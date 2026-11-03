@@ -24,7 +24,7 @@ Isian tanpa output langsung (Lokasi penugasan, Kode unit, Path output SIMA-NG, s
 
 Tanggal pengesahan awal sama tanggal konsep ST; RPL awal sama akhir ST. Awal persiapan 2 hari kerja setelah ST mengikuti pola workbook asal. Nilai awal ini dapat diganti. Sabtu/Minggu otomatis dikecualikan sebagai hari libur kerja; sheet LIBUR tidak lagi diperlukan.
 
-6,5 jam/hari orang adalah parameter workbook asal, bukan aturan universal TND. JAM_TIM awal menganggarkan partisipasi penuh untuk setiap personel; sesuaikan PM/PT/anggota bila kontribusinya berbeda. Tidak ada rasio wajib KT=2×PM. KM 4 mengagregat peran/fase, KM 5 menghitung total orang masing-masing, dan jam KM 6 harus menjaga anggaran tiap orang.
+Jam pengawasan per hari orang maksimal 6,5 jam (nilai bawaan `JAM_PER_HARI`). Generator menolak `JAM_PER_HARI` di atas 6,5 serta jam fase per orang di JAM_TIM yang melebihi hari fase × 6,5. JAM_TIM awal menganggarkan partisipasi penuh untuk setiap personel; sesuaikan PM/PT/anggota bila kontribusinya berbeda. Tidak ada rasio wajib KT=2×PM. KM 4 mengagregat peran/fase, KM 5 menghitung total orang masing-masing, dan jam KM 6 harus menjaga anggaran tiap orang.
 
 NIP tersimpan otomatis sebagai teks dari sheet Pegawai saat nama dipilih via dropdown. Format NIP standar (dengan atau tanpa spasi) diverifikasi valid 18 digit angka. Tidak ada nama/NIP pejabat lama yang diprefill. Nomor resmi boleh kosong saat konsep; tidak diganti nomor fiktif.
 

@@ -434,7 +434,7 @@ Kendali mutu penugasan pengawasan dituangkan ke dalam kertas kerja spreadsheet t
   - Pencatatan berkala/kumulatif realisasi jam kerja mandays per penugasan, link formula ke KM 5 untuk menghitung varians/selisih efisiensi jam kerja.
 - **Formula Keterkaitan Antar-Sheet (Inter-Sheet Automation):**
   - **Sinkronisasi Metadata:** Seluruh sheet (KM 4, KM 5, KM 6) mereferensikan sel metadata utama (Nomor ST, Tanggal ST, Nama Penugasan, Objek Pengawasan, Periode Penugasan).
-  - **Kalkulasi Mandays Otomatis:** Perhitungan hari kerja menggunakan formula `=NETWORKDAYS(start_date, end_date, libur)` atau konversi jam kerja standar (1 Mandays = 7,5 jam kerja efektif BPKP).
+  - **Kalkulasi Mandays Otomatis:** Perhitungan hari kerja menggunakan formula `=NETWORKDAYS(start_date, end_date, libur)` atau konversi jam kerja per hari orang dengan batas **maksimal 6,5 jam pengawasan per hari orang**.
   - **Lookup Profil Tim:** Nama dan NIP tim diambil otomatis via formula `=VLOOKUP(...)` atau `=XLOOKUP(...)` dari master data pegawai.
 
 ### 8.3 Ekstraksi dan Penanganan Tanda Tangan Transparan

@@ -82,6 +82,9 @@ TABLES = {
     'Pegawai': ['Nama', 'NIP', 'NIP Lama', 'Bidang'],
 }
 BASE_ROLES = ['Wakil Penanggung Jawab', 'Pengendali Teknis', 'Ketua Tim'] + ['Anggota Tim'] * 20
+# Batas jam pengawasan per hari orang BPKP (dikonfirmasi pemelihara skill).
+JAM_MAKS_PER_HARI = 6.5
+JAM_HARI_CATATAN = 'Jam pengawasan per hari orang maksimal 6,5 jam (nilai bawaan 6,5).'
 # Teks identitas yang tertulis apa adanya di DOCX assets/templates (Papua Tengah). Ini kunci
 # penggantian, terpisah dari profil_unit.json yang boleh diubah ke unit lain.
 TEMPLATE_IDENTITY = {

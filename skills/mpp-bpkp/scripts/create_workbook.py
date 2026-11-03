@@ -9,7 +9,7 @@ from openpyxl.comments import Comment
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.workbook.properties import CalcProperties
-from schema import ROOT, VERSION, DATA, NARASI, TABLES, BASE_ROLES, PIA_REQUIRED
+from schema import ROOT, VERSION, DATA, NARASI, TABLES, BASE_ROLES, PIA_REQUIRED, JAM_HARI_CATATAN
 
 BLUE='17365D'; YELLOW='FFF2CC'; PALE='E7E6E6'; WHITE='FFFFFF'; MUTED='595959'
 
@@ -142,7 +142,7 @@ def create(path, overwrite=False, with_pegawai=False, pegawai_source=None):
         49: 'Otomatis: akhir penyelesaian',
         50: 'Otomatis: direncanakan selesai penugasan ST',
         51: 'Otomatis: Rencana Penerbitan Laporan (RPL)',
-        53: 'Contoh: 6.5 (Standar jam pengawasan per hari orang BPKP)',
+        53: JAM_HARI_CATATAN,
         54: 'Otomatis: menghitung jumlah anggota tim yang terisi nama',
         56: 'Pilihan: PIA atau PENGAWASAN (Gunakan dropdown)',
         57: 'Pilihan: EVALUASI, AUDIT, PIA, LAINNYA (Gunakan dropdown, default: EVALUASI)',
@@ -198,7 +198,7 @@ def create(path, overwrite=False, with_pegawai=False, pegawai_source=None):
         80:'=IF(B50="","",B50)',
     }
     for r,f in formulas.items():calculated(ws.cell(r,2),f,'Nilai otomatis; Sabtu/Minggu dikecualikan.')
-    ws['B53'].comment=Comment('6,5 jam per hari orang berasal dari parameter workbook sumber. Sesuaikan jika dasar penugasan berbeda.','MPP BPKP')
+    ws['B53'].comment=Comment(JAM_HARI_CATATAN,'MPP BPKP')
     
     for r in [39,40,44,45,46,47,48,49,50,51,71,74,75,77,78,79,80]:ws.cell(r,2).number_format='dd mmmm yyyy'
     for r in [30,31,33,61,62,64,65,66]:ws.row_dimensions[r].height=52
