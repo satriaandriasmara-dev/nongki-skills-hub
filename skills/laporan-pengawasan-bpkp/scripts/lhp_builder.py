@@ -254,10 +254,15 @@ def build_laporan_bentuk_surat(doc,
                                pejabat_jabatan: str = "Kepala Perwakilan,",
                                pejabat_nama: str = "",
                                unit_kerja: str = "PERWAKILAN PROVINSI PAPUA TENGAH",
-                               include_kop: bool = True):
+                               include_kop: bool = True,
+                               kop_detail: Optional[dict] = None):
     """
     Bangun Laporan Pengawasan BPKP Bentuk Surat (Pendek) sesuai
     Peraturan BPKP Nomor 4 Tahun 2026 BAB V-C.5.
+
+    kop_detail : argumen tambahan add_kop_surat_table (alamat, wilayah, kontak, logo_path).
+                 Wajib diisi bila unit_kerja bukan Papua Tengah; tanpa itu kop memakai
+                 alamat/kontak bawaan Papua Tengah di bawah nama unit lain.
 
     Struktur:
       - Kepala: Kop surat dinas BPKP + tabel metadata (Nomor, Lampiran, Hal, Tanggal)
@@ -281,7 +286,11 @@ def build_laporan_bentuk_surat(doc,
     tanggal_val = tanggal if tanggal else "   "
 
     if include_kop:
-        add_kop_surat_table(doc, unit_kerja=unit_kerja)
+        if not kop_detail and "PAPUA TENGAH" not in unit_kerja.upper():
+            import warnings
+            warnings.warn("build_laporan_bentuk_surat: unit_kerja diubah tanpa kop_detail; "
+                          "alamat/kontak kop masih Papua Tengah.", stacklevel=2)
+        add_kop_surat_table(doc, unit_kerja=unit_kerja, **(kop_detail or {}))
         add_surat_pengantar_metadata(doc, nomor=nomor_val, lampiran=lampiran, hal=hal, tanggal=tanggal_val)
 
     # Tujuan Surat
@@ -299,7 +308,8 @@ def build_laporan_bentuk_surat(doc,
     if pembuka_text:
         add_p(doc, pembuka_text, space_after=Pt(6))
     else:
-        add_p(doc, f"Bersama ini kami sampaikan {hal} sebagai berikut:", space_after=Pt(6))
+        add_p(doc, f"Bersama ini kami sampaikan {hal} sebagai berikut:" if hal
+              else "Bersama ini kami sampaikan hasil pengawasan sebagai berikut:", space_after=Pt(6))
 
     # A. Simpulan
     if simpulan_list:

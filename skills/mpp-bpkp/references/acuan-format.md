@@ -13,4 +13,4 @@ Kop surat menggunakan logo dan teks Word pada header pertama, bukan screenshot. 
 
 Tabel pakta dan formulir berkotak mempertahankan garis luar serta pemisah kolom/baris. Tidak ada aturan semua tabel harus tanpa garis kiri/kanan. Nota dinas PIA dibuat ringkas dengan laporan rinci sebagai lampiran satu DOCX, mengikuti susunan BAB V-B.1.a. Jumlah halaman menyesuaikan isi dan personel, bukan harus satu atau dua halaman.
 
-Rincian border dan status rujukan telah diperbaiki pada skill `tata-naskah-dinas-bpkp`, khususnya `references/format-tabel-dan-rujukan.md`. Peraturan, contoh unit, dan pilihan teknis generator harus dibedakan; jangan mempromosikan padding, arsiran, atau ukuran kolom tertentu menjadi ketentuan TND universal.
+Rincian border dan status rujukan telah diperbaiki pada skill `tata-naskah-dinas-bpkp` di lingkungan asal (berkas `format-tabel-dan-rujukan.md` tidak ikut di repositori ini; rujukan format yang tersedia ada di `tata-naskah-dinas-bpkp/references/penomoran-dan-format.md`). Peraturan, contoh unit, dan pilihan teknis generator harus dibedakan; jangan mempromosikan padding, arsiran, atau ukuran kolom tertentu menjadi ketentuan TND universal.

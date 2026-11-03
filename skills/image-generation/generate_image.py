@@ -9,6 +9,8 @@ environment or flags, so the script works for any user without edits:
     IMAGE_API_BASE    Base URL, e.g. https://openrouter.ai/api  (no trailing /v1)
     IMAGE_API_KEY     API key (sent as Authorization: Bearer <key>)
     IMAGE_API_MODEL   Model id (default: google/gemini-2.5-flash-image)
+    IMAGE_API_PATH    Endpoint path (default: /v1/images/generations; /v1/images
+                      for openrouter.ai, whose Image API lives there)
 
 Usage:
     python generate_image.py "a single red apple on a white background"
@@ -36,6 +38,7 @@ except ImportError:
 
 DEFAULT_BASE = os.environ.get("IMAGE_API_BASE", "").rstrip("/")
 DEFAULT_MODEL = os.environ.get("IMAGE_API_MODEL", "google/gemini-2.5-flash-image")
+DEFAULT_PATH = os.environ.get("IMAGE_API_PATH", "")
 DEFAULT_OUT_DIR = Path.cwd() / "images"
 DEFAULT_SIZE = "1024x1024"
 
@@ -58,9 +61,16 @@ def sniff_extension(data: bytes) -> str:
     return "png"
 
 
+def endpoint_path(base: str, path: str = "") -> str:
+    """OpenAI-style /v1/images/generations, except OpenRouter's Image API (/v1/images)."""
+    if path:
+        return "/" + path.lstrip("/")
+    return "/v1/images" if "openrouter.ai" in base else "/v1/images/generations"
+
+
 def fire(prompt: str, base: str, model: str = DEFAULT_MODEL,
          size: str = DEFAULT_SIZE, n: int = 1,
-         response_format: str = "b64_json") -> dict:
+         response_format: str | None = None, path: str = "") -> dict:
     if not base:
         raise RuntimeError(
             "No API base URL configured. Set IMAGE_API_BASE (e.g. "
@@ -75,10 +85,13 @@ def fire(prompt: str, base: str, model: str = DEFAULT_MODEL,
         "prompt": prompt,
         "n": n,
         "size": size,
-        "response_format": response_format,
     }
+    # Only send response_format when asked: some endpoints (e.g. gpt-image models,
+    # OpenRouter's Image API) reject or ignore it, and extract_item handles both forms.
+    if response_format:
+        payload["response_format"] = response_format
     t0 = time.time()
-    r = requests.post(f"{base}/v1/images/generations", headers=headers,
+    r = requests.post(f"{base}{endpoint_path(base, path)}", headers=headers,
                       json=payload, timeout=300)
     elapsed = time.time() - t0
     if not r.ok:
@@ -155,9 +168,12 @@ def main() -> int:
     p.add_argument("--size", default=DEFAULT_SIZE,
                    help=f"Image size (default: {DEFAULT_SIZE})")
     p.add_argument("--n", type=int, default=1, help="Number of images (default: 1)")
-    p.add_argument("--response-format", default="b64_json",
+    p.add_argument("--path", default=DEFAULT_PATH,
+                   help="Endpoint path (default: $IMAGE_API_PATH, else /v1/images/generations; "
+                        "/v1/images for openrouter.ai)")
+    p.add_argument("--response-format", default=None,
                    choices=["b64_json", "url"],
-                   help="Response format (default: b64_json)")
+                   help="Response format to request (default: not sent; endpoint default)")
     args = p.parse_args()
 
     # Windows consoles/pipes often default to cp1252, which cannot print "→"/"✓".
@@ -173,7 +189,7 @@ def main() -> int:
               "https://openrouter.ai/api) or pass --base.", file=sys.stderr)
         return 1
 
-    print(f"→ Generating via {args.base}/v1/images/generations (model={args.model})")
+    print(f"→ Generating via {args.base}{endpoint_path(args.base, args.path)} (model={args.model})")
     if os.environ.get("IMAGE_API_KEY"):
         print("  Auth: IMAGE_API_KEY (Bearer)")
     else:
@@ -183,7 +199,7 @@ def main() -> int:
     try:
         result = fire(args.prompt, args.base, model=args.model,
                       size=args.size, n=args.n,
-                      response_format=args.response_format)
+                      response_format=args.response_format, path=args.path)
     except Exception as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 1

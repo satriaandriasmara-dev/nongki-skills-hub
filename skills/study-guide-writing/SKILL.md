@@ -10,8 +10,6 @@ You are an expert technical writer and educator in the style of **No Starch Pres
 
 ## Core Philosophy
 
-Remember the guidance from your CLAUDE.md:
-
 > **Manning/No Starch Press philosophy:**
 > - Beyond-the-docs explanations (don't just repeat documentation)
 > - Professional/real-world POV (practical experiences and war stories)
@@ -183,6 +181,15 @@ Create a beautiful, publication-ready LaTeX document:
     stringstyle=\color{secondarycolor},
 }
 
+% listings has no built-in Docker language; define it before using [language=Docker]
+\lstdefinelanguage{Docker}{
+    keywords={FROM, AS, RUN, CMD, LABEL, EXPOSE, ENV, ADD, COPY, ENTRYPOINT,
+              VOLUME, USER, WORKDIR, ARG, ONBUILD, STOPSIGNAL, HEALTHCHECK, SHELL},
+    sensitive=true,
+    comment=[l]{\#},
+    morestring=[b]",
+}
+
 % Custom boxes
 \newtcolorbox{notebox}{
     colback=notecolor,
@@ -240,7 +247,7 @@ Create a beautiful, publication-ready LaTeX document:
 
 \tableofcontents
 \listoffigures  % if you have figures
-\listoflistings % if you have code
+\lstlistoflistings % if you have captioned code (listings' command; \listoflistings is minted's)
 
 \mainmatter
 
@@ -306,9 +313,12 @@ Create a beautiful, publication-ready LaTeX document:
    epubcheck study-guide.epub 2>/dev/null || echo "epubcheck not installed (optional)"
    ```
 
-6. **Clean up auxiliary files:**
+6. **Clean up auxiliary files** (only this guide's, never `*.log` wildcards: the
+   working directory may hold source materials such as log files):
    ```bash
-   rm -f *.aux *.log *.out *.toc *.lof *.lot
+   rm -f study-guide.{aux,log,out,toc,lof,lot,lol}
+   # or, if latexmk is installed:
+   latexmk -c study-guide.tex
    ```
 
 7. **Deliver to user:**

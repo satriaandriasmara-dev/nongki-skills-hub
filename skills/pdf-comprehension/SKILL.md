@@ -18,10 +18,11 @@ Follow these steps in order:
 
 ### 2. Image Extraction
 - Create a temporary working directory: `/tmp/pdf-analysis-{timestamp}/`
-- Use `convert` command to extract all PDF pages as PNG images:
+- Use `pdftoppm` (Poppler, the same package that provides `pdfinfo`) to extract all PDF pages as PNG images:
   ```bash
-  convert -density 150 input.pdf /tmp/pdf-analysis-{timestamp}/page-%03d.png
+  pdftoppm -r 150 -png input.pdf /tmp/pdf-analysis-{timestamp}/page
   ```
+- Fallback if Poppler is missing: ImageMagick 7 `magick -density 150 input.pdf /tmp/pdf-analysis-{timestamp}/page-%03d.png` (ImageMagick 6: `convert`). On Windows never call bare `convert`: it resolves to `C:\Windows\System32\convert.exe`, the FAT-to-NTFS disk converter. ImageMagick also needs Ghostscript and may be blocked from reading PDFs by its `policy.xml`.
 - Report extraction progress
 
 ### 3. Image Assessment
@@ -52,23 +53,25 @@ Create a comprehensive markdown summary file with:
 
 Save the summary as: `{original-filename}-summary.md`
 
+Before cleaning up the temp directory, copy the 2-4 referenced page images into `{original-filename}-summary-assets/` next to the summary and link them with relative paths (`{original-filename}-summary-assets/page-07.png`). Links into `/tmp/pdf-analysis-*` break as soon as the temp directory is removed.
+
 ## Commands You'll Use
 
 ```bash
 # Get PDF info
 pdfinfo document.pdf
 
-# Alternative: Get page count with pdftotext
-pdftotext document.pdf - | wc -l
+# Alternative: get page count with pdftotext (one form feed per page; `wc -l` counts lines, not pages)
+pdftotext document.pdf - | tr -cd '\f' | wc -c
 
 # Convert PDF to images (150 DPI for balance of quality/size)
-convert -density 150 document.pdf /tmp/pdf-analysis-{timestamp}/page-%03d.png
+pdftoppm -r 150 -png document.pdf /tmp/pdf-analysis-{timestamp}/page
 
 # Check image sizes
 ls -lh /tmp/pdf-analysis-{timestamp}/ | head -10
 
-# Get image dimensions
-identify /tmp/pdf-analysis-{timestamp}/page-001.png
+# Get image dimensions (pdftoppm names pages page-1.png or page-01.png, zero-padded to the page count)
+file /tmp/pdf-analysis-{timestamp}/page-*.png | head -3
 
 # Calculate total size
 du -sh /tmp/pdf-analysis-{timestamp}/
@@ -77,7 +80,7 @@ du -sh /tmp/pdf-analysis-{timestamp}/
 ## Error Handling
 
 - If `pdfinfo` is not available, use `pdftotext` or direct file size check
-- If `convert` fails (ImageMagick not available), inform user and suggest alternatives
+- If `pdftoppm` is not available, try ImageMagick (`magick`) as described above; if neither works, inform user and suggest installing Poppler
 - If images are too large, gracefully skip with explanation
 - Always clean up temporary files when done
 
@@ -123,10 +126,10 @@ The summary markdown should follow this template:
 ## Visual Highlights
 
 ### {Description of visual 1}
-![Visual 1](path/to/image-1.png)
+![Visual 1]({original-filename}-summary-assets/page-01.png)
 
 ### {Description of visual 2}
-![Visual 2](path/to/image-2.png)
+![Visual 2]({original-filename}-summary-assets/page-02.png)
 
 ## Recommendations
 
@@ -139,11 +142,11 @@ The summary markdown should follow this template:
 
 ## Best Practices
 
-1. **Always verify tools are available** before starting (pdfinfo, convert, identify)
+1. **Always verify tools are available** before starting (pdfinfo, pdftoppm)
 2. **Be size-conscious**: Don't try to read hundreds of massive images
 3. **Provide progress updates**: Let user know what step you're on
 4. **Preserve important visuals**: Include 2-4 key diagrams/charts in summary
-5. **Clean up**: Remove temp directory when complete or if process fails
+5. **Clean up**: Remove temp directory when complete or if process fails, after copying the images the summary links to
 6. **Be helpful**: If you can't process the full PDF, explain why and offer alternatives
 
 ## Example Usage
@@ -156,7 +159,7 @@ Your process:
 3. Assess images → "Images are ~300KB each, total 13.5MB - will read all pages"
 4. Read and analyze → Process each page image
 5. Generate summary → Create quarterly-report-summary.md with key findings
-6. Cleanup → Remove temporary images
+6. Cleanup → Copy linked visuals to quarterly-report-summary-assets/, then remove temporary images
 7. Present → Show summary location and key insights
 
 ## Notes

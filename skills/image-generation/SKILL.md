@@ -15,7 +15,7 @@ Generate images from text prompts through **any OpenAI-compatible Images API** �
 <skill-dir>/generate_image.py
 ```
 
-Plain Python CLI (requires `requests`; `pip install requests` if missing). It POSTs to `{base}/v1/images/generations`, decodes the returned image, writes it to disk, and saves a `.revised.md` sidecar when the API returns a `revised_prompt`.
+Plain Python CLI (requires `requests`; `pip install requests` if missing). It POSTs to `{base}/v1/images/generations` (OpenAI style) or, for `openrouter.ai`, to `{base}/v1/images` (OpenRouter's Image API), decodes the returned image, writes it to disk, and saves a `.revised.md` sidecar when the API returns a `revised_prompt`.
 
 ## Configuration
 
@@ -26,6 +26,7 @@ Everything is env-configurable — no hardcoded addresses, works for any user:
 | `IMAGE_API_BASE` | API base URL **without** `/v1` | `https://openrouter.ai/api` |
 | `IMAGE_API_KEY` | API key, sent as `Authorization: Bearer <key>` | *(secret — keep in env, never in the skill)* |
 | `IMAGE_API_MODEL` | Default model id | `google/gemini-2.5-flash-image` |
+| `IMAGE_API_PATH` | Optional endpoint path override (default `/v1/images/generations`; `/v1/images` is picked automatically for `openrouter.ai`) | `/v1/images` |
 
 Set them once in your shell profile (or `.env` + `direnv`) and every tool that loads this skill uses them:
 
@@ -61,7 +62,8 @@ python <skill-dir>/generate_image.py "prompt..." --size 1024x1024 --n 2
 | `--model ID` | Model ID (default: `$IMAGE_API_MODEL` or `google/gemini-2.5-flash-image`) |
 | `--size WxH` | Image size (default `1024x1024`) |
 | `--n N` | Number of images (default 1) |
-| `--response-format` | `b64_json` (default) or `url` |
+| `--path PATH` | Endpoint path (default: `$IMAGE_API_PATH`, else auto as above) |
+| `--response-format` | `b64_json` or `url`; not sent unless given, since some endpoints reject it (both response forms are handled) |
 
 ## Output
 
@@ -103,7 +105,7 @@ Do **not** fall back on the first error. Try alternative models first.
 ## Error handling
 
 - `No API base URL configured`: `IMAGE_API_BASE` is unset and no `--base` given — set the env var or pass the flag
-- `HTTP <status>` / connection errors: endpoint unreachable — verify the URL or pass `--base`. If it stays unreachable, use the SVG fallback
+- `HTTP <status>` / connection errors: endpoint unreachable — verify the URL or pass `--base`. An `HTTP 404` usually means the endpoint path differs on this provider; set `IMAGE_API_PATH` / `--path`. If it stays unreachable, use the SVG fallback
 - `No images returned`: usually means the upstream call failed — confirm `IMAGE_API_KEY` is set and the model id exists on the endpoint. If it persists across all models, use the SVG fallback
 - Do not claim success without a real saved file; report the actual output of the script
 - Never pass off a fallback SVG as model-generated output — always state which path produced the file
