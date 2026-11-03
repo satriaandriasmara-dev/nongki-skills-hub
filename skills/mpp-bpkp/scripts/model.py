@@ -188,7 +188,8 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
                 ihp.append({'id':fmt(val_a),'information':fmt(val_b),'source':fmt(wb['IHP'].cell(r,3).value or '')})
             elif nonempty(val_a):
                 entry_text=str(val_a).strip()
-                m_prefix=re.match(r'^(?:\[?(IHP[-._\s]?\d+)\]?|[(\[]?(\d+)[)\]]?)\s*[-–—:.)]\s*(.*)$',entry_text,re.IGNORECASE)
+                # (?!\d): "1.234 desa ..." adalah angka ribuan, bukan butir nomor 1 berisi "234 desa ...".
+                m_prefix=re.match(r'^(?:\[?(IHP[-._\s]?\d+)\]?|[(\[]?(\d+)[)\]]?)\s*[-–—:.)](?!\d)\s*(.*)$',entry_text,re.IGNORECASE)
                 if not m_prefix:m_prefix=re.match(r'^(IHP[-._\s]?\d+)\s+(.*)$',entry_text,re.IGNORECASE)
                 if m_prefix:
                     raw_id=m_prefix.group(1) if m_prefix.group(1) else m_prefix.group(2)
@@ -210,7 +211,7 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
             if sumber_pia=='FILE':
                 files[9]=source_path(data.get('FILE_LAPORAN_PIA'),workbook,cell('FILE_LAPORAN_PIA'),issues,True)
         for key in ['FILE_KAP','FILE_PEDOMAN']:
-            if nonempty(data.get(key)):sources[key]=source_path(data[key],workbook,f'DATA!B{key_to_row.get(key,0)}',issues,office_only=False)
+            if nonempty(data.get(key)):sources[key]=source_path(data[key],workbook,cell(key),issues,office_only=False)
         if not ihp and not nonempty(data.get('FILE_KAP')):issues.append('Isi Insilwas pada tab IHP.')
         if data.get('UNIT_KERJA') and data.get('KOP_BARIS2') and fmt(data['UNIT_KERJA'])!=TEMPLATE_IDENTITY['unit'] and 'PAPUA TENGAH' in fmt(data['KOP_BARIS2']).upper():issues.append('Unit diubah tetapi kop masih Papua Tengah.')
         for key in ['STATUS_CEK_PIA','STATUS_CEK_DPP','STATUS_CEK_RENCANA','STATUS_CEK_KM6']:

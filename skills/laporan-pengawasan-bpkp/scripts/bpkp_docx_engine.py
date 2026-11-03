@@ -286,12 +286,11 @@ def _apply_font(run, bold: bool = False, italic: bool = False,
     run.font.bold = bold
     run.font.italic = italic
     run.font.color.rgb = color
-    rPr = run._r.get_or_add_rPr()
-    rFonts = parse_xml(
-        f'<w:rFonts {nsdecls("w")} w:ascii="{FONT_NAME}" w:hAnsi="{FONT_NAME}" '
-        f'w:cs="{FONT_NAME}" w:eastAsia="{FONT_NAME}"/>'
-    )
-    rPr.append(rFonts)
+    # font.name sudah membuat <w:rFonts>; lengkapi atributnya, jangan tambah elemen kedua
+    # (rFonts ganda di akhir rPr melanggar skema OOXML).
+    rFonts = run._r.get_or_add_rPr().get_or_add_rFonts()
+    for attr in ('ascii', 'hAnsi', 'cs', 'eastAsia'):
+        rFonts.set(qn(f'w:{attr}'), FONT_NAME)
 
 
 def _ensure_style_font(style) -> None:
@@ -900,6 +899,8 @@ def add_effect(doc, effect_text, num_id=None, ilvl=None):
 
 def add_recommendation_block(doc, rec_points, num_id=None, ilvl=4):
     """Blok rekomendasi: intro + item bernomor (ilvl=4)."""
+    if ilvl is None:  # add_recommendation() meneruskan ilvl=None sebagai default
+        ilvl = 4
     parent_ilvl = max(ilvl - 1, 0) if ilvl > 0 else 0
     parent_fmt = _LEVEL_FMT[parent_ilvl]
     parent_text_pos = parent_fmt[1] / 1440.0
@@ -933,8 +934,16 @@ def add_recommendation_block(doc, rec_points, num_id=None, ilvl=4):
             pPr.append(ind_el)
         add_run(p_intro, "Atas permasalahan tersebut, direkomendasikan agar:", bold=False, color=BLACK)
 
-        for item in rec_points:
-            add_numbered_item(doc, item, num_id, ilvl=ilvl)
+        for i, item in enumerate(rec_points):
+            if num_id is not None:
+                add_numbered_item(doc, item, num_id, ilvl=ilvl)
+            else:
+                # Tanpa num_id, numPr akan berisi numId="None" (XML tidak sah); pakai
+                # awalan manual a), b), ... seperti builder legacy lainnya.
+                p = add_p(doc, "", left_indent=Inches(0.65), hanging_indent=Inches(-0.30),
+                          tab_pos_dxa=936)
+                add_run(p, f"{chr(97 + i % 26)})\t", color=BLACK)
+                add_run(p, item, color=BLACK)
 
 
 def add_recommendation(doc, rec_text, num_id=None, ilvl=None):
@@ -1633,7 +1642,7 @@ def get_unit_profile(unit_key: str = "pusat_utama") -> dict:
     candidates = [
         os.path.join(current_dir, "..", "assets", "unit_profiles.json"),
         os.path.join(current_dir, "assets", "unit_profiles.json"),
-        os.path.join(os.path.dirname(current_dir), "tata-naskah-dinas-bpkp", "assets", "unit_profiles.json"),
+        os.path.join(current_dir, "..", "..", "tata-naskah-dinas-bpkp", "assets", "unit_profiles.json"),
     ]
     for asset_path in candidates:
         if os.path.exists(asset_path):

@@ -72,10 +72,14 @@ def get_profile(profile_key: str, overrides: Optional[Dict[str, Any]] = None) ->
         for k, v in profiles.items():
             if key in k or k in key:
                 profile = v.copy()
+                # Mis. "papua_selatan" jatuh ke profil "papua" (Jayapura); beri tahu agar kop dicek.
+                print(f"Peringatan: profil unit '{profile_key}' tidak ada; memakai profil '{k}'.", file=sys.stderr)
                 break
-                
+
     if not profile:
         # Profil default jika tidak ditemukan
+        print(f"Peringatan: profil unit '{profile_key}' tidak ada; kop memakai alamat generik. "
+              "Tambahkan unit ke assets/unit_profiles.json.", file=sys.stderr)
         profile = {
             "kode_unit": "PW",
             "nama_kantor": f"PERWAKILAN BPKP {profile_key.upper()}",
@@ -192,20 +196,29 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
     """
     # 1. Deteksi dan hapus 5 baris kop teks di awal dokumen (termasuk logo dan
     #    baris alamat), agar tidak tersisa baris kosong atau alamat ganda di bawah tabel kop.
-    kop_paragraphs = []
-    for i, p in enumerate(doc.paragraphs[:7]):
-        txt = p.text.strip()
-        if any(keyword in txt for keyword in [
-            "BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN",
-            "UNIT KERJA",
-            "(alamat)",
-            "nomor telepon",
-            "Website www.bpkp.go.id"
-        ]):
-            kop_paragraphs.append(p)
-
-    for p in kop_paragraphs:
-        p._p.getparent().remove(p._p)
+    head = doc.paragraphs[:7]
+    kop_idx = [i for i, p in enumerate(head) if any(keyword in p.text.strip() for keyword in [
+        "BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN",
+        "UNIT KERJA",
+        "(alamat)",
+        "nomor telepon",
+        "Website www.bpkp.go.id"
+    ])]
+    if kop_idx:
+        last = kop_idx[-1]
+        # Paragraf kosong di atas baris kop adalah pemegang logo templat (mis. Keputusan/SE JPT);
+        # bila dibiarkan, logo lama menumpuk di atas tabel kop baru.
+        for i, p in enumerate(head[:last + 1]):
+            if i in kop_idx or not p.text.strip():
+                p._p.getparent().remove(p._p)
+        # Garis kop templat (shape "Straight Connector" ter-anchor di paragraf kosong sesudah kop)
+        # menjadi garis ganda di bawah tabel; hapus gambarnya, pertahankan paragraf spasinya.
+        for p in head[last + 1:last + 3]:
+            if p.text.strip():
+                break
+            for r in list(p._p):
+                if r.xpath('.//*[local-name()="drawing" or local-name()="pict"]'):
+                    p._p.remove(r)
 
     # 2. Sisipkan tabel kop di posisi paling atas
     # Buat tabel 1 row x 2 cols
@@ -276,10 +289,12 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
         r4.font.size = Pt(9)
 
     # Baris 5: Kontak & Website
-    telp = profile.get("telepon", "-")
+    telp = profile.get("telepon", "")
     em = profile.get("email", "")
     web = profile.get("website", "www.bpkp.go.id")
-    r5 = p_text.add_run(f"Telepon: {telp} | E-mail: {em} | Website: {web}")
+    # Profil tanpa nomor telepon (mis. papua_tengah) tidak dicetak "Telepon: -".
+    kontak = [f"Telepon: {telp}" if telp and telp != "-" else "", f"E-mail: {em}" if em else "", f"Website: {web}" if web else ""]
+    r5 = p_text.add_run(" | ".join(k for k in kontak if k))
     r5.font.name = "Arial"
     r5.font.size = Pt(8.5)
 
@@ -549,8 +564,11 @@ def main():
         return
 
     payload = {}
-    if args.data and os.path.exists(args.data):
-        with open(args.data, "r", encoding="utf-8") as f:
+    if args.data:
+        # Salah ketik path jangan diam-diam menghasilkan naskah berisi placeholder default.
+        if not os.path.exists(args.data):
+            parser.error(f"file --data tidak ditemukan: {args.data}")
+        with open(args.data, "r", encoding="utf-8-sig") as f:
             payload = json.load(f)
 
     # Injeksi argumen CLI jika disediakan langsung
