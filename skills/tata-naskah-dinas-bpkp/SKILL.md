@@ -508,4 +508,21 @@ Untuk menambah unit kerja baru, cukup tambahkan entri JSON pada `assets/unit_pro
    ```
    *Secara otomatis kop surat tabel logo BPKP, nomor naskah (PW16 vs PW36), dan kota penandatanganan akan beralih ke Kalimantan Selatan tanpa mengubah kode generator.*
 
+5. **Kunci `payload.json` yang dikenali** (semua opsional; flag CLI `--hal`, `--tujuan`, `--isi`, `--keperluan`, `--penandatangan`, `--jabatan`, `--nomor` mengisi kunci yang sama):
+
+   | Kunci | Isi |
+   |---|---|
+   | `nomor_lengkap` | Nomor utuh; menimpa penyusunan nomor otomatis |
+   | `kode_klasifikasi`, `nomor_urut`, `kode_unit`, `konseptor`, `tahun` | Segmen nomor; urutannya mengikuti baris nomor templat |
+   | `kode_keamanan` | `SR`/`R`/`T` untuk surat dinas (kosong = Biasa) |
+   | `tanggal_naskah` | Tempat dan tanggal (bawaan: kota profil + tanggal hari ini) |
+   | `tujuan` | Pihak yang dituju pada baris `Yth.` |
+   | `hal` | Perihal pada baris `Hal` (paragraf maupun tabel kepala) |
+   | `nama_penugasan` / `keperluan` | Mengisi `(nama penugasan)` |
+   | `isi`, `isi_surat`, `isi_nota_dinas` | Narasi isi surat/nota dinas |
+   | `nama_penandatangan`, `jabatan_penandatangan` | Blok tanda tangan (`(nama lengkap pejabat)`, `(jabatan)`) |
+   | `pimpinan_unit_kerja` | Mengisi `(pimpinan unit kerja)` |
+   | `personel` / `tim` | Daftar `{no, nama, nip, peran}` untuk tabel personel Surat Tugas |
+   | `replacements` | Pemetaan teks bebas `{"teks templat": "pengganti"}` untuk placeholder lain |
+
 

@@ -342,6 +342,37 @@ def apply_nomor(doc: docx.Document, formatted_nomor: str) -> int:
     return count
 
 
+_PLACEHOLDER_ONLY = re.compile(r"^[\s.…:]*(\([^)]*\))?[\s.…]*$")
+
+
+def apply_header_field(doc: docx.Document, label: str, value: str) -> int:
+    """
+    Isi baris kepala naskah "Yth." / "Hal" yang masih kosong/berplaceholder.
+    Paragraf ("Hal\\t:\\t", "Yth. \\t (nama jabatan tujuan surat)") ditulis ulang utuh; pada
+    tabel ("Hal\\t:" | nilai) nilai ditulis di sel isian, bukan di sel label.
+    """
+    count = 0
+    lab = re.escape(label)
+    for p in doc.paragraphs[:40]:
+        m = re.match(rf"\s*{lab}\s*(:?)(.*)$", p.text, re.S)
+        if m and _PLACEHOLDER_ONLY.match(m.group(2)):
+            _set_paragraph_text(p, f"{label}\t: {value}" if m.group(1) else f"{label} {value}")
+            count += 1
+    for table in doc.tables[:3]:
+        for row in table.rows[:6]:
+            cells = row.cells
+            if len(cells) < 2 or not re.match(rf"\s*{lab}\s*:?\s*$", cells[0].text):
+                continue
+            # Lewati sel pemisah ":" bila templat memakai kolom titik dua tersendiri.
+            target = next((c for c in cells[1:] if c.text.strip() != ":"), None)
+            if target is not None and target.paragraphs:
+                _set_paragraph_text(target.paragraphs[0], value)
+                for extra in target.paragraphs[1:]:
+                    _set_paragraph_text(extra, "")
+                count += 1
+    return count
+
+
 def find_nomor_pattern(doc: docx.Document) -> Optional[str]:
     """Teks baris nomor templat (paragraf "NOMOR ..." atau sel tabel "Nomor") yang masih berplaceholder."""
     for p in doc.paragraphs[:25]:
@@ -535,6 +566,18 @@ def generate_document(template_key: str,
         "(narasi muatan/isi Surat Dinas)": payload.get("isi_surat", payload.get("isi", "")),
         "(narasi muatan/isi Nota Dinas)": payload.get("isi_nota_dinas", payload.get("isi", ""))
     }
+    # Blok tanda tangan sebagian besar templat memakai "... (nama lengkap pejabat)" /
+    # "... (nama pejabat)" dan "..., (jabatan)" (bukan "(nama lengkap)"/"(nama jabatan)");
+    # diisi hanya bila diberikan agar placeholder tetap terlihat pada draf.
+    for ell in ("...", "…"):
+        if payload.get("nama_penandatangan"):
+            replacements[f"{ell} (nama lengkap pejabat)"] = payload["nama_penandatangan"]
+            replacements[f"{ell} (nama pejabat)"] = payload["nama_penandatangan"]
+            # Templat Surat Permintaan Data tertulis tanpa kurung tutup; diproses sesudah bentuk lengkap.
+            replacements[f"{ell} (nama pejabat"] = payload["nama_penandatangan"]
+        if payload.get("jabatan_penandatangan"):
+            replacements[f"{ell}, (jabatan)"] = payload["jabatan_penandatangan"] + ","
+            replacements[f"{ell} (jabatan),"] = payload["jabatan_penandatangan"] + ","
 
     # Tambahkan custom mapping dari payload
     if "replacements" in payload:
@@ -543,6 +586,10 @@ def generate_document(template_key: str,
     # Nomor naskah harus diterapkan SEBELUM penggantian placeholder umum; setelahnya
     # pola "(kode klasifikasi arsip)" sudah hilang dan --nomor/nomor_lengkap terabaikan.
     apply_nomor(doc, formatted_nomor)
+    if payload.get("tujuan"):
+        apply_header_field(doc, "Yth.", payload["tujuan"])
+    if payload.get("hal"):
+        apply_header_field(doc, "Hal", payload["hal"])
 
     # Jalankan penggantian teks placeholder
     replace_all_placeholders(doc, replacements)
@@ -630,14 +677,10 @@ def main():
             payload = json.load(f)
 
     # Injeksi argumen CLI jika disediakan langsung
+    # hal/tujuan diisi oleh apply_header_field (paragraf maupun tabel kepala naskah).
     if args.hal:
-        payload.setdefault("replacements", {})
-        payload["replacements"]["Hal\t:"] = f"Hal\t: {args.hal}"
         payload["hal"] = args.hal
     if args.tujuan:
-        payload.setdefault("replacements", {})
-        payload["replacements"]["Yth.\t:"] = f"Yth.\t: {args.tujuan}"
-        payload["replacements"]["Yth. \t"] = f"Yth. {args.tujuan}"
         payload["tujuan"] = args.tujuan
     if args.keperluan:
         payload["keperluan"] = args.keperluan
