@@ -98,7 +98,7 @@ Daftar berikut dikumpulkan dari temuan nyata yang lolos beberapa putaran pemoles
 | :--- | :--- | :--- |
 | `turut + verba` | "kendala ... turut menyulitkan tim survei", "literasi ... turut menghambat pengumpulan nota" | Hapus "turut", pakai verba langsung: "menyulitkan", "menghambat" |
 | `nyaris tidak` | "KPB nyaris tidak memiliki pilihan rekanan" | "hampir tidak punya pilihan" |
-| `tercermin dari` | "kondisi ini tercerci dari data portal" | Pecah kalimat: "sering terlambat. Portal masih mencatat ..." |
+| `tercermin dari` | "kondisi ini tercermin dari data portal" | Pecah kalimat: "sering terlambat. Portal masih mencatat ..." |
 | `telah terpetakan` | "jumlah unit ... telah terpetakan" | "sudah terjawab dari data yang terkumpul" / "telah terhimpun" |
 | `menyimpan risiko` | "menyimpan risiko sengketa tanah" | "berisiko menimbulkan sengketa tanah" (risiko bukan benda yang disimpan) |
 | `perlu diwaspadai` | "beberapa risiko ... perlu diwaspadai" | "risiko yang perlu diuji lebih lanjut" |

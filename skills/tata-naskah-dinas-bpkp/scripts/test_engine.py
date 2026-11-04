@@ -46,7 +46,7 @@ def run_tests():
             "unit": "kalsel",
             "data": {
                 "nomor_urut": "77",
-                "replacements": {"Hal\t:": "Hal\t: Undangan Rapat Kerja Pimpinan"}
+                "hal": "Undangan Rapat Kerja Pimpinan"
             }
         },
         {
@@ -54,7 +54,9 @@ def run_tests():
             "unit": "jatim",
             "data": {
                 "nomor_urut": "99",
-                "replacements": {"Hal\t:": "Hal\t: Permintaan Bahan Evaluasi"}
+                "hal": "Permintaan Bahan Evaluasi",
+                "tujuan": "Kepala Dinas Pendidikan",
+                "nama_penandatangan": "Penguji Penanda Tangan"
             }
         },
         {
@@ -90,6 +92,17 @@ def run_tests():
             # Verifikasi keterbacaan python-docx
             doc = docx.Document(res_path)
             assert len(doc.paragraphs) > 0 or len(doc.tables) > 0, "Dokumen kosong!"
+            # Isian kepala dan tanda tangan harus mendarat di tempatnya (Hal di sel isian, bukan sel label).
+            paras = [p.text for p in doc.paragraphs]
+            rows = [[c.text for c in r.cells] for t in doc.tables for r in t.rows]
+            texts = paras + [c for r in rows for c in r]
+            if tc["data"].get("hal"):
+                assert any(p == f"Hal\t: {tc['data']['hal']}" for p in paras) or \
+                    any(r and r[0].strip().startswith("Hal") and tc["data"]["hal"] in r[1:] for r in rows), \
+                    f"Hal tidak terisi pada {tc['jenis']}"
+            for k in ("tujuan", "nama_penandatangan"):
+                if tc["data"].get(k):
+                    assert any(tc["data"][k] in t for t in texts), f"{k} tidak terisi pada {tc['jenis']}"
             print(f"[PASS] Case {idx}: {tc['jenis']} ({tc['unit']}) -> Generated successfully ({os.path.getsize(res_path)} bytes).")
 
     print("=" * 60)

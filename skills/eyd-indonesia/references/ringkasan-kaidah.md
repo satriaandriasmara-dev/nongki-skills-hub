@@ -38,7 +38,7 @@ Daftar ringkas kaidah paling sering digunakan dan rawan kesalahan untuk rujukan 
 
 * **Partikel `pun`**:
   * Dipisah jika bermakna "juga" atau "pun itu" (*apa pun*, *saya pun*, *siapa pun*).
-  * Disambung hanya pada 12 kata klise: *adapun*, *andaikata pun*, *ataupun*, *bagaimanapun*, *biarpun*, *kalaupun*, *kendatipun*, *maupun*, *meskipun*, *sungguhpun*, *walaupun*, *sekalipun* (makna "meski").
+  * Disambung hanya pada 12 kata klise: *adapun*, *andaipun*, *ataupun*, *bagaimanapun*, *biarpun*, *kalaupun*, *kendatipun*, *maupun*, *meskipun*, *sungguhpun*, *walaupun*, *sekalipun* (makna "meski").
 
 * **Singkatan dan Akronim**:
   * Singkatan umum 3 huruf kecil diakhiri 1 titik (*dll.*, *dsb.*, *hlm.*, *yth.*, *tsb.*).
@@ -46,7 +46,7 @@ Daftar ringkas kaidah paling sering digunakan dan rawan kesalahan untuk rujukan 
   * Akronim nama diri menggunakan kapital tanpa titik (*BMKG*, *IKN*, *Kemenkeu*, *UNICEF*).
 
 * **Angka dan Bilangan**:
-  * Angka ditulis dengan huruf jika terdiri dari satu atau dua kata (*tiga kali*, *dua puluh orang*).
+  * Bilangan ditulis dengan huruf jika dapat dinyatakan dengan satu atau dua kata (*tiga kali*, *dua puluh orang*).
   * Angka ditulis dengan digit jika digunakan untuk rincian (*10 meja, 5 kursi, dan 2 lemari*) atau menyatakan ukuran/nilai uang/waktu (*5 cm*, *Rp50.000,00*, *pukul 08.00*).
 
 ---

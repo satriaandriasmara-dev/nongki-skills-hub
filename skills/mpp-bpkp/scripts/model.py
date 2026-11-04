@@ -229,8 +229,20 @@ def read_model(workbook,recalc=True,content=None,inspect_only=False):
     plan=json.loads(Path(content).read_text(encoding='utf-8-sig')) if not isinstance(content,dict) else content
     return compile_plan(model,plan)
 
+MARKDOWN=re.compile(r'\*[^*\n]+\*|<(?:b|i|em)>|^#{1,6}\s',re.M)
+def text_fields(obj,path='rancangan'):
+    """(lokasi, teks) untuk setiap string di rancangan, rekursif."""
+    if isinstance(obj,str):yield path,obj
+    elif isinstance(obj,dict):
+        for k,v in obj.items():yield from text_fields(v,f'{path}.{k}')
+    elif isinstance(obj,list):
+        for i,v in enumerate(obj):yield from text_fields(v,f'{path}[{i}]')
+
 def compile_plan(m,plan):
     issues=[]
+    # Token DOCX diisi apa adanya: *miring*/<i>/# akan tercetak literal (invarian tanda bintang = 0).
+    marked=[p for p,v in text_fields(plan) if MARKDOWN.search(v)]
+    if marked:issues.append('Rancangan memuat penanda markdown (*...*, <i>, #) yang akan tercetak apa adanya di DOCX; tulis sebagai teks biasa: '+', '.join(marked[:8])+(' …' if len(marked)>8 else ''))
     if plan.get('schema_version')!=VERSION:issues.append('Rancangan: schema_version harus '+VERSION)
     if plan.get('input_sha256')!=m['input_sha256']:issues.append('Rancangan berasal dari versi input berbeda; susun ulang terhadap workbook terbaru.')
     ihp=plan.get('ihp',m['ihp']);ids=[x.get('id','') for x in ihp]

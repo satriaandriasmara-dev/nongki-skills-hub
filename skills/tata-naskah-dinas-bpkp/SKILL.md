@@ -88,8 +88,9 @@ TENTANG
 
 **Format 2 -- Dengan kode jenis** (untuk naskah dinas selain di atas):
 ```
-[kode keamanan] / [kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
+[kode klasifikasi arsip] / [kode keamanan] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
 ```
+Kode keamanan diletakkan **setelah** kode klasifikasi arsip dan dihilangkan untuk naskah Biasa (Peraturan BPKP 4/2026 Bagian II.B.2.b); beberapa templat juga tanpa kode konseptor (lihat format surat dinas).
 
 **Surat dinas** (Surat Dinas, Surat Dinas Kepala/Waka, Surat Pengantar Penugasan) mengikuti templat resmi, dengan kode keamanan sesudah kode klasifikasi arsip dan tanpa kode konseptor:
 ```
@@ -164,8 +165,9 @@ Terapkan prinsip humanisasi dan pemeriksaan EYD V sebagaimana diuraikan pada ski
 Berdasarkan implementasi standar naskah dinas dan laporan pengawasan BPKP pada Microsoft Word (`docx`):
 
 ### 6.1 Pengaturan Halaman & Tipografi
-- **Ukuran Kertas & Margin:** Kertas A4 (21,0 cm x 29,7 cm). Margin Kiri: 3,0 cm (1.18", ruang jilid); Margin Atas, Kanan, dan Bawah: 2,0 cm (0.79").
-- **Font:** Font resmi **Arial** 100% konsisten pada seluruh teks. Pada OpenXML Word wajib menyertakan:
+- **Ukuran Kertas & Ruang Tepi:** Kertas A4 (21,0 cm x 29,7 cm). Batas minimum ruang tepi (Peraturan BPKP 4/2026 Bagian II.E, bersifat fleksibel): atas 10 mm bila berkop / paling kurang 20 mm tanpa kop atau halaman berikutnya; **bawah paling kurang 25 mm**; kiri paling kurang 30 mm (media kertas) / 20 mm (elektronik); kanan paling kurang 20 mm. Preset engine (`create_document`): kiri 3,0 cm, kanan 2,0 cm, atas 2,0 cm, bawah 2,5 cm.
+- **Nomor Halaman (Peraturan BPKP 4/2026 Bagian II.F):** angka Arab, di tengah atas dengan format `- 2 -`, halaman pertama yang memakai kop (atau cover) tanpa nomor, jenis huruf sama dengan naskah. `create_document()` memasangnya otomatis.
+- **Font:** Naskah dinas memakai **Arial ukuran 11 atau 12**; naskah dinas berbentuk produk hukum (peraturan, instruksi, surat edaran, dan keputusan) memakai **Bookman Old Style ukuran 12** (Peraturan BPKP 4/2026 Bagian II.D.2). Kop naskah dinas tetap Arial. Untuk naskah ber-font Arial, pada OpenXML Word wajib menyertakan:
   `<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>`
 - **Ukuran Font:**
   - Judul Dokumen/Naskah: Arial 12–14 pt Bold (Cover: Arial 14–16 pt Bold)
@@ -303,7 +305,9 @@ Sumber: [Instansi], [Tahun]
 ```
 Dicetak miring (*Italic*), Arial 9 pt.
 
-### 6.5 Standar Tabel Naskah Dinas BPKP (Clean Open-Table Style)
+### 6.5 Preset Tabel (Clean Open-Table Style)
+> [!note] Peraturan BPKP 4/2026 tidak mengatur garis tabel. Gaya terbuka ini adalah preset tabel yang dibuat engine/skill; tabel pada templat atau contoh resmi (mis. tabel personel Surat Tugas, pakta integritas, formulir) tetap berkotak seperti aslinya.
+
 - Garis border **hanya horizontal** (Top, Bottom, Header separator `sz="4"`, warna `#B0B0B0` atau `#000000`), **tanpa border vertikal** (*Left, Right, InsideV = none*).
 - Header row shading abu-abu lembut (`#F2F2F2`), Font Arial 10 pt Bold, Center/Left aligned, Vertically centered.
 - Padding sel: Atas/Bawah 100 dxa (~5 pt), Kiri/Kanan 150 dxa (~7.5 pt).
@@ -426,7 +430,7 @@ Pakta Integritas merupakan komitmen etika dan integritas tim sebelum melaksanaka
   - Tipografi: Arial konsisten (Judul 13pt bold, Subjudul/Isi 10.5–11pt spasi 1.15, Tabel TTD 10pt spasi 1.0).
   - Poin Komitmen: 7 butir komitmen integritas menggunakan penomoran multilevel native Word (`<w:numPr>`) dengan *hanging indent* rapi.
 - **Tabel Penandatangan Tim (Struktur Berjenjang):**
-  - Menggunakan format tabel dinas tanpa garis vertikal (*clean table*, garis pembatas horizontal tipis).
+  - Mengikuti format tabel pada templat/contoh KM yang dipakai (berkotak bila contohnya berkotak); gaya tanpa garis vertikal hanya preset.
   - Memuat seluruh peran tim: Penanggung Jawab, Pengendali Mutu/Teknis (Dalnis), Ketua Tim, dan Anggota Tim lengkap dengan NIP.
 
 ### 8.2 Formulir Kendali Mutu Pengawasan (Format KM 4, KM 5, KM 6)
@@ -507,5 +511,22 @@ Untuk menambah unit kerja baru, cukup tambahkan entri JSON pada `assets/unit_pro
    python scripts/generate_naskah.py --jenis surat_tugas --unit kalsel --data payload.json --output Surat_Tugas_Kalsel.docx
    ```
    *Secara otomatis kop surat tabel logo BPKP, nomor naskah (PW16 vs PW36), dan kota penandatanganan akan beralih ke Kalimantan Selatan tanpa mengubah kode generator.*
+
+5. **Kunci `payload.json` yang dikenali** (semua opsional; flag CLI `--hal`, `--tujuan`, `--isi`, `--keperluan`, `--penandatangan`, `--jabatan`, `--nomor` mengisi kunci yang sama):
+
+   | Kunci | Isi |
+   |---|---|
+   | `nomor_lengkap` | Nomor utuh; menimpa penyusunan nomor otomatis |
+   | `kode_klasifikasi`, `nomor_urut`, `kode_unit`, `konseptor`, `tahun` | Segmen nomor; urutannya mengikuti baris nomor templat |
+   | `kode_keamanan` | `SR`/`R`/`T` untuk surat dinas (kosong = Biasa) |
+   | `tanggal_naskah` | Tempat dan tanggal (bawaan: kota profil + tanggal hari ini) |
+   | `tujuan` | Pihak yang dituju pada baris `Yth.` |
+   | `hal` | Perihal pada baris `Hal` (paragraf maupun tabel kepala) |
+   | `nama_penugasan` / `keperluan` | Mengisi `(nama penugasan)` |
+   | `isi`, `isi_surat`, `isi_nota_dinas` | Narasi isi surat/nota dinas |
+   | `nama_penandatangan`, `jabatan_penandatangan` | Blok tanda tangan (`(nama lengkap pejabat)`, `(jabatan)`) |
+   | `pimpinan_unit_kerja` | Mengisi `(pimpinan unit kerja)` |
+   | `personel` / `tim` | Daftar `{no, nama, nip, peran}` untuk tabel personel Surat Tugas |
+   | `replacements` | Pemetaan teks bebas `{"teks templat": "pengganti"}` untuk placeholder lain |
 
 

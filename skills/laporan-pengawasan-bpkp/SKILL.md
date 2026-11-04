@@ -30,7 +30,7 @@ Baca [Panduan Standar IIA](references/standar-iia.md) untuk kerangka struktural 
 
 ## 1. Prinsip Kualitas Komunikasi (IIA)
 
-Setiap teks laporan yang dihasilkan wajib memenuhi 6 karakteristik:
+Setiap teks laporan yang dihasilkan wajib memenuhi 7 karakteristik komunikasi efektif (Global Internal Audit Standards, Standard 11.2):
 
 | Prinsip | Penerapan |
 |---|---|
@@ -39,6 +39,7 @@ Setiap teks laporan yang dihasilkan wajib memenuhi 6 karakteristik:
 | **Jelas** | Bahasa formal Indonesia, hindari jargon yang tidak perlu. Singkatan dieja lengkap pada kemunculan pertama. |
 | **Ringkas** | Langsung ke pokok masalah. Satu paragraf = satu ide utama. Hindari pengulangan. |
 | **Konstruktif** | Nada membantu perbaikan, bukan menyalahkan. Rekomendasi berorientasi solusi. |
+| **Lengkap** | Memuat semua informasi yang dibutuhkan pembaca untuk memahami temuan dan menindaklanjuti rekomendasi (tujuan, lingkup, temuan 5C, simpulan, rekomendasi). |
 | **Tepat Waktu** | Sajikan informasi yang relevan dengan periode pengawasan yang sedang berjalan. |
 
 ## 2. Struktur Dokumen: Tidak Baku, Bervariasi
@@ -514,6 +515,8 @@ Format nomor mengikuti pola umum TND: `[kode keamanan]/[kode klasifikasi arsip]/
 1. Diksi/kata atau kalimat yang menunjukkan bahwa tugas yang diemban dilakukan dengan **tidak melanggar ketentuan peraturan perundang-undangan**;
 2. Layanan pengaduan apabila terdapat pegawai BPKP dalam melaksanakan tugas menerima/meminta **gratifikasi dan suap**.
 
+Peraturan tidak membakukan redaksinya. Pada engine, panggil `add_catatan_kaki_etika(doc, kanal_pengaduan="...")` sebagai bagian terakhir laporan (garis pemisah + Arial 9 pt miring); `build_laporan_bentuk_surat()` menambahkannya otomatis. Bila `kanal_pengaduan` kosong, kanal ditulis sebagai isian yang harus dilengkapi.
+
 ### 11.6 Sampul/Cover Laporan
 
 1. Kertas hard cover jenis **buffalo** atau kertas lain dengan spesifikasi lebih tinggi sesuai keperluan.
@@ -536,7 +539,7 @@ Format nomor mengikuti pola umum TND: `[kode keamanan]/[kode klasifikasi arsip]/
 
 ### 11.8 Unsur Pokok Naskah Dinas (untuk laporan bentuk surat)
 
-Kop naskah dinas; nomor; lampiran; hal/perihal; tanggal; alamat tujuan; salam pembuka; isi (pembuka--inti--penutup); salam penutup; nama jabatan penanda tangan; nama pejabat; pangkat dan NIP; tembusan (bila ada); tanda tangan dan nama terang; nomor halaman; lampiran.
+Kop naskah dinas; nomor; lampiran; hal/perihal; tanggal; alamat tujuan; salam pembuka; isi (pembuka--inti--penutup); salam penutup; nama jabatan penanda tangan; nama pejabat (tanpa gelar dan NIP, Peraturan BPKP 4/2026 Bagian II tentang ruang tanda tangan); tembusan (bila ada); tanda tangan dan nama terang; nomor halaman; lampiran.
 
 ---
 
@@ -545,8 +548,9 @@ Kop naskah dinas; nomor; lampiran; hal/perihal; tanggal; alamat tujuan; salam pe
 Berdasarkan praktik terbaik dan standardisasi penyusunan laporan pengawasan (LHE/LHP) BPKP, berikut adalah aturan teknis formatting, hierarki indentasi, tabel, dan tipografi Word (docx) yang wajib dipatuhi:
 
 ### 12.1 Pengaturan Halaman & Tipografi
-- **Ukuran Kertas & Margin:** Kertas A4 (21,0 cm x 29,7 cm). Margin Kiri: 3,0 cm (1.18", ruang jilid); Margin Atas, Kanan, dan Bawah: 2,0 cm (0.79").
-- **Font:** Wajib menggunakan font **Arial** 100% konsisten di seluruh elemen (heading, paragraf, tabel, nomor, header, footer). Pada OpenXML Word pastikan seluruh *runs* menyertakan:
+- **Ukuran Kertas & Ruang Tepi:** Kertas A4 (21,0 cm x 29,7 cm). Batas minimum ruang tepi (Peraturan BPKP 4/2026 Bagian II.E, bersifat fleksibel): atas 10 mm bila berkop / paling kurang 20 mm tanpa kop atau halaman berikutnya; **bawah paling kurang 25 mm**; kiri paling kurang 30 mm (media kertas) / 20 mm (elektronik); kanan paling kurang 20 mm. Preset engine (`create_document`): kiri 3,0 cm, kanan 2,0 cm, atas 2,0 cm, bawah 2,5 cm.
+- **Nomor Halaman (Peraturan BPKP 4/2026 Bagian II.F):** angka Arab, di tengah atas dengan format `- 2 -`, halaman pertama yang memakai kop (atau cover) tanpa nomor, jenis huruf sama dengan naskah. `create_document()` memasangnya otomatis.
+- **Font:** Naskah dinas memakai **Arial ukuran 11 atau 12** (Peraturan BPKP 4/2026 Bagian II.D.2; laporan pada skill ini memakai 12), konsisten di seluruh elemen (heading, paragraf, tabel, nomor, header, footer). Pada OpenXML Word pastikan seluruh *runs* menyertakan:
   `<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>`
 - **Ukuran Font:**
   - Judul Cover Utama: Arial 14–16 pt Bold
@@ -709,10 +713,12 @@ Agar batas kiri tabel temuan sejajar lurus (*flush*) dengan indentasi teks naras
 
 ---
 
-### 12.4 Standar Format Tabel BPKP (Clean Open-Table Style)
+### 12.4 Preset Format Tabel (Clean Open-Table Style)
+
+> [!note] Peraturan BPKP 4/2026 tidak mengatur garis tabel. Gaya terbuka ini adalah preset tabel yang dibuat engine/skill; tabel pada templat atau contoh resmi (mis. tabel personel Surat Tugas, pakta integritas, formulir) tetap berkotak seperti aslinya.
 
 Tabel dalam laporan BPKP disajikan secara bersih, rapi, dan profesional dengan kaidah:
-- **Borders:** Hanya menggunakan garis horizontal (Top, Bottom, dan garis pemisah header) tipis single border (`sz="4"`, warna abu-abu `#B0B0B0` atau hitam `#000000`). **DILARANG menggunakan border vertikal** (Left, Right, InsideV diset `val="none"`).
+- **Borders:** Hanya menggunakan garis horizontal (Top, Bottom, dan garis pemisah header) tipis single border (`sz="4"`, warna abu-abu `#B0B0B0` atau hitam `#000000`). Tanpa border vertikal (Left, Right, InsideV diset `val="none"`) pada tabel buatan engine.
 - **Cell Padding (Margin Sel):** Top/Bottom: 100 dxa (~5 pt), Left/Right: 150 dxa (~7.5 pt) agar teks tidak menempel ketat pada garis border.
 - **Header Baris:** Background shading abu-abu muda (`#F2F2F2` atau `#E6E6E6`), Font Arial 10 pt Bold, Center/Left aligned, Vertically centered.
 - **Isi Tabel:** Font Arial 10 pt Regular. Kolom Angka/Realisasi rata kanan (*Right-aligned*), Kolom No rata tengah (*Center*), Kolom Uraian rata kiri/justified.
@@ -859,7 +865,8 @@ from bpkp_docx_engine import create_document
 
 | Fungsi | Kegunaan |
 |---|---|
-| `create_document()` | Buat dokumen kosong dengan A4, margin 3/2/2/2 cm, Arial 12pt, spasi 1.15, heading styles, dan infrastruktur numbering. |
+| `create_document()` | Buat dokumen kosong dengan A4, margin kiri/kanan/atas/bawah 3/2/2/2,5 cm, Arial 12pt, spasi 1.15, heading styles, infrastruktur numbering, dan nomor halaman `- n -` tengah atas (halaman pertama tanpa nomor). |
+| `add_catatan_kaki_etika(doc, kanal_pengaduan)` | Catatan kaki wajib halaman terakhir laporan hasil pengawasan: pelaksanaan tanpa melanggar peraturan + layanan pengaduan gratifikasi/suap (BAB V-C.5.c.5)). |
 | `new_bab_context(doc, "BAB I")` | Mulai Bab baru → restart semua level numbering ke 1. Kembalikan `num_id`. |
 | `new_topic_context(doc, "Topik X")` | Mulai topik baru dalam Bab → nomor topik berlanjut sekuensial. Kembalikan `num_id` Bab. |
 | `add_heading_1(doc, text)` | Heading 1 (judul BAB) → muncul di Navigation Panel. |
@@ -961,7 +968,7 @@ doc.save("LHP.docx")
 
 ## 14. Dokumentasi Pengawasan: Notisi Pembahasan & Berita Acara Exit Meeting
 
-Sesuai **Peraturan BPKP Nomor 4 Tahun 2026 BAB V-C.1**, Dokumentasi Pengawasan (Notisi Hasil Pengawasan, Berita Acara Pembahasan/Exit Meeting, Rencana Tindak Perbaikan, Pernyataan Kesanggupan) merupakan kategori naskah dinas khusus yang **tidak menggunakan penomoran surat dinas biasa** (tanpa kode jenis nomor keluar biasa) dan dapat ditandatangani oleh Pengendali Teknis/Ketua Tim bersama pimpinan entitas auditan.
+Sesuai **Peraturan BPKP Nomor 4 Tahun 2026 BAB V-C.1**, Dokumentasi Pengawasan (Notisi Hasil Pengawasan, Berita Acara Pembahasan/Exit Meeting, Rencana Tindak Perbaikan, Pernyataan Kesanggupan) merupakan kategori naskah dinas khusus yang **tidak menggunakan penomoran surat dinas biasa** (tanpa kode jenis nomor keluar biasa) Notisi hasil pengawasan disampaikan secara sepihak dan **hanya memuat tanda tangan tim pengawasan**; Berita Acara Pembahasan ditandatangani kedua pihak (Pengendali Teknis/Ketua Tim bersama pimpinan entitas auditan).
 
 ### 14.1 Notisi Hasil Pengawasan (Notisi Pembahasan)
 
@@ -987,7 +994,7 @@ Dokumentasi pengawasan lapangan resmi untuk mengomunikasikan simpulan evaluasi d
 6. **Tanggapan Mitra & Rencana Aksi (Action Plan)**:
    - Memuat komitmen tindak lanjut dari OPD terkait, pejabat penanggung jawab (*Person in Charge* / PIC), dan target batas waktu penyelesaian (*deadline* bulan/tahun).
 7. **Tanda Tangan Pembahasan**:
-   - Ditandatangani bersama oleh Pengendali Teknis/Ketua Tim BPKP dan Pimpinan Instansi Mitra.
+   - Notisi disampaikan secara sepihak dan hanya memuat tanda tangan tim pengawasan (Peraturan BPKP 4/2026 BAB V-C.1); penandatanganan bersama dengan pimpinan instansi mitra dilakukan pada Berita Acara Pembahasan (14.2).
 
 ---
 

@@ -54,7 +54,7 @@ Digunakan untuk laporan evaluasi komprehensif, audit kinerja, atau pemeriksaan m
                        (Arial 14 pt Bold)
 
 
-                   Nomor   : [Kode Klasifikasi]/LHP-[No]/[Kode Unit]/[Tahun]
+                   Nomor   : [Kode Klasifikasi]/LHP-[No]/[Kode Unit]/[Konseptor]/[Tahun]
                    Tanggal : [Tanggal Penetapan Laporan]
                        (Arial 12 pt Bold)
 
@@ -93,7 +93,7 @@ Setiap temuan diuraikan secara runut:
 
 ---
 
-## 3. Format Penyajian Tabel BPKP (Open Table)
-- Garis horizontal saja (Top, Header separator, Bottom); dilarang garis vertikal.
+## 3. Preset Penyajian Tabel (Open Table)
+- Preset engine: garis horizontal saja (Top, Header separator, Bottom), tanpa garis vertikal. Peraturan 4/2026 tidak mengatur garis tabel; templat pengguna/contoh resmi yang berkotak tetap diikuti.
 - Shading header abu-abu lembut (`#EAEAEA` atau `#F2F2F2`), teks bold 10 pt.
 - Keterangan sumber dicantumkan di bawah tabel dengan huruf miring (*Italic 9 pt*): `Sumber: Dinas Pertanian Kabupaten [Nama], 2026`.

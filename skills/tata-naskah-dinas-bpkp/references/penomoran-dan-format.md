@@ -23,8 +23,9 @@ TENTANG
 ### Format 2: Dengan Kode Jenis (Umum)
 Untuk naskah dinas selain Peraturan/Instruksi/Surat Edaran:
 ```
-[kode keamanan] / [kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
+[kode klasifikasi arsip] / [kode keamanan] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
 ```
+Kode keamanan diletakkan **setelah** kode klasifikasi arsip dan dihilangkan untuk naskah Biasa (Peraturan BPKP 4/2026 Bagian II.B.2.b); beberapa templat juga tanpa kode konseptor (lihat format surat dinas).
 
 Contoh riil naskah pengawasan BPKP di lapangan:
 1. **Surat Tugas (ST):** `PE.09.02/ST-314/PW36/2/2026`
@@ -49,7 +50,7 @@ Templat lain tanpa kode konseptor: Notisi Hasil Pengawasan dan Surat Dinas Notis
 - `SR` : Sangat Rahasia
 - `R`  : Rahasia
 - `T`  : Terbatas
-- `S`  : Biasa (tanpa kode di nomor surat)
+- Biasa (dicatat sebagai `B` pada pengendalian naskah masuk): **tanpa kode** di nomor naskah
 
 ### Pengecualian Penomoran
 - **Tanpa kode jenis**: Peraturan, Instruksi, Surat Edaran (Format 1).

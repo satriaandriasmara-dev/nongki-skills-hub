@@ -13,7 +13,7 @@ Auditor internal wajib menyusun komunikasi akhir yang memuat elemen berikut:
 5. **Conclusions (Kesimpulan):** Penilaian menyeluruh auditor terhadap efektivitas tata kelola, manajemen risiko, dan pengendalian internal di area tersebut.
 6. **Recommendations & Action Plans (Rekomendasi & Rencana Aksi):** Solusi perbaikan dan komitmen manajemen (auditee).
 
-## Prinsip Kualitas Komunikasi (6 Karakteristik IIA)
+## Prinsip Kualitas Komunikasi (7 Karakteristik IIA, Standard 11.2)
 
 Setiap laporan harus memenuhi:
 
@@ -22,6 +22,7 @@ Setiap laporan harus memenuhi:
 * **Jelas (Clear):** Bahasa universal, mudah dipahami oleh pemangku kepentingan (Board/Manajemen), hindari jargon teknis yang tidak perlu.
 * **Ringkas (Concise):** Langsung pada pokok permasalahan, menghindari repetisi, eliminasi informasi tidak relevan.
 * **Konstruktif (Constructive):** Nada bahasa membantu organisasi memperbaiki proses, bukan sekadar mencari kesalahan.
+* **Lengkap (Complete):** Tidak ada informasi penting yang hilang; pembaca dapat memahami temuan dan menindaklanjuti rekomendasi tanpa sumber lain.
 * **Tepat Waktu (Timely):** Hasil evaluasi segera dilaporkan agar tindakan korektif dapat dieksekusi.
 
 ## Kerangka Temuan: Metode 5C (Five C's Model)
@@ -52,10 +53,12 @@ Setiap temuan audit diurai ke dalam 5 elemen:
 
 | Elemen IIA Standard 15.1 | Letak dalam Laporan BPKP |
 |---|---|
-| Objectives | BAB II.B.1 -- Tujuan Evaluasi |
-| Scope | BAB II.B.2 -- Ruang Lingkup |
-| Methodology | BAB II.C -- Metode Evaluasi |
+| Objectives | BAB II.B -- Tujuan & Sasaran |
+| Scope | BAB II.C -- Ruang Lingkup |
+| Methodology | BAB II.F -- Metodologi & Informasi Umum |
 | Findings & Observations | BAB III.B -- Hasil Pengawasan (Uraian Temuan) |
 | Conclusions | BAB I.A -- Simpulan |
 | Recommendations | BAB I.B -- Rekomendasi + BAB III.B (Rekomendasi per topik) |
-| Conformance Statement | BAB II.D -- Pernyataan Pemenuhan Norma |
+| Conformance Statement | BAB II.E -- Pernyataan Pemenuhan Norma |
+
+Penomoran bagian BAB II mengikuti `references/template-format.md` (A Dasar Pelaksanaan, B Tujuan & Sasaran, C Ruang Lingkup, D Batasan dan Tanggung Jawab, E Conformance Statement, F Metodologi). `lhp_builder.build_bab_ii_template` memakai susunan ringkas (A Latar Belakang, B Tujuan, C Ruang Lingkup, D Dasar Hukum, E Kelembagaan); sesuaikan pemetaan bila memakai builder.
