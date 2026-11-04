@@ -165,6 +165,7 @@ Berdasarkan implementasi standar naskah dinas dan laporan pengawasan BPKP pada M
 
 ### 6.1 Pengaturan Halaman & Tipografi
 - **Ukuran Kertas & Ruang Tepi:** Kertas A4 (21,0 cm x 29,7 cm). Batas minimum ruang tepi (Peraturan BPKP 4/2026 Bagian II.E, bersifat fleksibel): atas 10 mm bila berkop / paling kurang 20 mm tanpa kop atau halaman berikutnya; **bawah paling kurang 25 mm**; kiri paling kurang 30 mm (media kertas) / 20 mm (elektronik); kanan paling kurang 20 mm. Preset engine (`create_document`): kiri 3,0 cm, kanan 2,0 cm, atas 2,0 cm, bawah 2,5 cm.
+- **Nomor Halaman (Peraturan BPKP 4/2026 Bagian II.F):** angka Arab, di tengah atas dengan format `- 2 -`, halaman pertama yang memakai kop (atau cover) tanpa nomor, jenis huruf sama dengan naskah. `create_document()` memasangnya otomatis.
 - **Font:** Naskah dinas memakai **Arial ukuran 11 atau 12**; naskah dinas berbentuk produk hukum (peraturan, instruksi, surat edaran, dan keputusan) memakai **Bookman Old Style ukuran 12** (Peraturan BPKP 4/2026 Bagian II.D.2). Kop naskah dinas tetap Arial. Untuk naskah ber-font Arial, pada OpenXML Word wajib menyertakan:
   `<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>`
 - **Ukuran Font:**

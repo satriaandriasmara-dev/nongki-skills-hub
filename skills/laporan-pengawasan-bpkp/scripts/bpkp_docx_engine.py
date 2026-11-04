@@ -47,7 +47,7 @@ __all__ = [
     "add_signature_block",
     "add_cover_page",
     "add_daftar_isi",
-    "add_page_break",
+    "add_page_break", "add_page_numbers", "add_catatan_kaki_etika",
     "add_table_with_subheader",
     "add_runs_with_markdown", "add_runs_with_italic",
     "set_table_flush_alignment", "clone_from_template",
@@ -251,8 +251,12 @@ def get_new_numbering_instance(
     """
     global _next_num_id
     np = doc.part.numbering_part
-    nid = _next_num_id
-    _next_num_id += 1
+    # Dokumen hasil clone_from_template (mis. LHP keluaran engine sebelumnya) sudah memuat
+    # numId 101, 102, ...; numId ganda membuat restart penomoran bab baru tidak berlaku.
+    existing = [int(n.get(qn('w:numId'))) for n in np.element.findall(qn('w:num'))
+                if (n.get(qn('w:numId')) or '').isdigit()]
+    nid = max([_next_num_id] + [i + 1 for i in existing])
+    _next_num_id = nid + 1
 
     if restart_levels:
         num_el = _build_num_with_override(nid, _ABSTRACT_NUM_ID, restart_levels, start_val)
@@ -461,9 +465,39 @@ def create_document() -> _Doc:
 
     setup_heading_styles(doc)
     setup_numbering_infrastructure(doc)
+    add_page_numbers(doc)
     _fix_theme_fonts(doc)
     _sync_styles_with_effects(doc)
     return doc
+
+
+def add_page_numbers(doc: _Doc, size=Pt(12)) -> None:
+    """
+    Nomor halaman sesuai Peraturan BPKP 4/2026 Bagian II.F: angka Arab, tengah atas,
+    format "- n -", halaman pertama (berkop/cover) tanpa nomor, font sama dengan naskah.
+    """
+    for section in doc.sections:
+        section.different_first_page_header_footer = True
+        header = section.header
+        header.is_linked_to_previous = False
+        p = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
+        for r in list(p.runs):
+            r._r.getparent().remove(r._r)
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        add_run(p, "- ", size=size)
+        for kind in ("begin", "instr", "separate", "result", "end"):
+            r = p.add_run("1" if kind == "result" else "")
+            _apply_font(r, size=size)
+            if kind == "instr":
+                instr = OxmlElement('w:instrText')
+                instr.set(qn('xml:space'), 'preserve')
+                instr.text = " PAGE "
+                r._r.append(instr)
+            elif kind != "result":
+                fld = OxmlElement('w:fldChar')
+                fld.set(qn('w:fldCharType'), kind)
+                r._r.append(fld)
+        add_run(p, " -", size=size)
 
 
 # =====================================================================
@@ -1237,6 +1271,28 @@ def get_default_logo(variant: str = "png") -> str:
 def add_page_break(doc):
     """Tambahkan page break ke dokumen."""
     doc.add_page_break()
+
+
+def add_catatan_kaki_etika(doc, kanal_pengaduan: str = "", teks: str = ""):
+    """
+    Catatan kaki wajib pada halaman terakhir laporan hasil pengawasan (Peraturan BPKP 4/2026
+    BAB V-C.5.c.5)): tugas dilaksanakan tanpa melanggar peraturan perundang-undangan, dan
+    layanan pengaduan bila pegawai BPKP menerima/meminta gratifikasi atau suap.
+    Peraturan tidak membakukan redaksinya; kanal pengaduan dibiarkan sebagai isian bila kosong.
+    Ditulis setelah garis pemisah, Arial 9 pt miring.
+    """
+    kanal = kanal_pengaduan or "... (kanal layanan pengaduan resmi BPKP/unit kerja)"
+    if not teks:
+        teks = ("Penugasan pengawasan ini dilaksanakan dengan tidak melanggar ketentuan peraturan "
+                "perundang-undangan. Apabila terdapat pegawai BPKP yang menerima atau meminta "
+                f"gratifikasi dan/atau suap dalam pelaksanaan tugas, mohon disampaikan melalui {kanal}.")
+    sep = doc.add_paragraph()
+    sep.paragraph_format.space_before = Pt(18)
+    sep.paragraph_format.space_after = Pt(2)
+    sep.paragraph_format.right_indent = Cm(11)
+    sep._p.get_or_add_pPr().append(parse_xml(
+        f'<w:pBdr {nsdecls("w")}><w:bottom w:val="single" w:sz="4" w:space="1" w:color="000000"/></w:pBdr>'))
+    return add_p(doc, teks, space_after=Pt(0), line_spacing=1.0, italic=True, size=Pt(9))
 
 
 def add_cover_page(doc, logo_path: str = "",

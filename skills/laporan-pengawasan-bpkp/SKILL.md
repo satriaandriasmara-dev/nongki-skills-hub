@@ -514,6 +514,8 @@ Format nomor mengikuti pola umum TND: `[kode keamanan]/[kode klasifikasi arsip]/
 1. Diksi/kata atau kalimat yang menunjukkan bahwa tugas yang diemban dilakukan dengan **tidak melanggar ketentuan peraturan perundang-undangan**;
 2. Layanan pengaduan apabila terdapat pegawai BPKP dalam melaksanakan tugas menerima/meminta **gratifikasi dan suap**.
 
+Peraturan tidak membakukan redaksinya. Pada engine, panggil `add_catatan_kaki_etika(doc, kanal_pengaduan="...")` sebagai bagian terakhir laporan (garis pemisah + Arial 9 pt miring); `build_laporan_bentuk_surat()` menambahkannya otomatis. Bila `kanal_pengaduan` kosong, kanal ditulis sebagai isian yang harus dilengkapi.
+
 ### 11.6 Sampul/Cover Laporan
 
 1. Kertas hard cover jenis **buffalo** atau kertas lain dengan spesifikasi lebih tinggi sesuai keperluan.
@@ -546,6 +548,7 @@ Berdasarkan praktik terbaik dan standardisasi penyusunan laporan pengawasan (LHE
 
 ### 12.1 Pengaturan Halaman & Tipografi
 - **Ukuran Kertas & Ruang Tepi:** Kertas A4 (21,0 cm x 29,7 cm). Batas minimum ruang tepi (Peraturan BPKP 4/2026 Bagian II.E, bersifat fleksibel): atas 10 mm bila berkop / paling kurang 20 mm tanpa kop atau halaman berikutnya; **bawah paling kurang 25 mm**; kiri paling kurang 30 mm (media kertas) / 20 mm (elektronik); kanan paling kurang 20 mm. Preset engine (`create_document`): kiri 3,0 cm, kanan 2,0 cm, atas 2,0 cm, bawah 2,5 cm.
+- **Nomor Halaman (Peraturan BPKP 4/2026 Bagian II.F):** angka Arab, di tengah atas dengan format `- 2 -`, halaman pertama yang memakai kop (atau cover) tanpa nomor, jenis huruf sama dengan naskah. `create_document()` memasangnya otomatis.
 - **Font:** Naskah dinas memakai **Arial ukuran 11 atau 12** (Peraturan BPKP 4/2026 Bagian II.D.2; laporan pada skill ini memakai 12), konsisten di seluruh elemen (heading, paragraf, tabel, nomor, header, footer). Pada OpenXML Word pastikan seluruh *runs* menyertakan:
   `<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>`
 - **Ukuran Font:**
@@ -859,7 +862,8 @@ from bpkp_docx_engine import create_document
 
 | Fungsi | Kegunaan |
 |---|---|
-| `create_document()` | Buat dokumen kosong dengan A4, margin kiri/kanan/atas/bawah 3/2/2/2,5 cm, Arial 12pt, spasi 1.15, heading styles, dan infrastruktur numbering. |
+| `create_document()` | Buat dokumen kosong dengan A4, margin kiri/kanan/atas/bawah 3/2/2/2,5 cm, Arial 12pt, spasi 1.15, heading styles, infrastruktur numbering, dan nomor halaman `- n -` tengah atas (halaman pertama tanpa nomor). |
+| `add_catatan_kaki_etika(doc, kanal_pengaduan)` | Catatan kaki wajib halaman terakhir laporan hasil pengawasan: pelaksanaan tanpa melanggar peraturan + layanan pengaduan gratifikasi/suap (BAB V-C.5.c.5)). |
 | `new_bab_context(doc, "BAB I")` | Mulai Bab baru → restart semua level numbering ke 1. Kembalikan `num_id`. |
 | `new_topic_context(doc, "Topik X")` | Mulai topik baru dalam Bab → nomor topik berlanjut sekuensial. Kembalikan `num_id` Bab. |
 | `add_heading_1(doc, text)` | Heading 1 (judul BAB) → muncul di Navigation Panel. |

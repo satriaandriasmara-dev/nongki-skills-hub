@@ -255,7 +255,9 @@ def build_laporan_bentuk_surat(doc,
                                pejabat_nama: str = "",
                                unit_kerja: str = "PERWAKILAN PROVINSI PAPUA TENGAH",
                                include_kop: bool = True,
-                               kop_detail: Optional[dict] = None):
+                               kop_detail: Optional[dict] = None,
+                               catatan_etika: bool = True,
+                               kanal_pengaduan: str = ""):
     """
     Bangun Laporan Pengawasan BPKP Bentuk Surat (Pendek) sesuai
     Peraturan BPKP Nomor 4 Tahun 2026 BAB V-C.5.
@@ -263,22 +265,26 @@ def build_laporan_bentuk_surat(doc,
     kop_detail : argumen tambahan add_kop_surat_table (alamat, wilayah, kontak, logo_path).
                  Wajib diisi bila unit_kerja bukan Papua Tengah; tanpa itu kop memakai
                  alamat/kontak bawaan Papua Tengah di bawah nama unit lain.
+    catatan_etika / kanal_pengaduan : catatan kaki wajib BAB V-C.5.c.5) di halaman terakhir
+                 (add_catatan_kaki_etika); matikan hanya untuk laporan penunjang pengawasan.
 
     Struktur:
       - Kepala: Kop surat dinas BPKP + tabel metadata (Nomor, Lampiran, Hal, Tanggal)
       - Tujuan: Yth. [Jabatan] di [Kota]
       - Batang Tubuh: Paragraf pengantar, A. Simpulan, B. Rekomendasi, Paragraf penutup
-      - Kaki: Blok tanda tangan (kanan bawah) & klausul pembagian terbatas / etika
+      - Kaki: Blok tanda tangan (kanan bawah) & catatan kaki etika/layanan pengaduan
     """
     try:
         from .bpkp_docx_engine import (
             add_kop_surat_table, add_surat_pengantar_metadata, add_p, add_run,
-            add_heading_2, add_topic_heading, add_numbered_item, add_signature_block
+            add_heading_2, add_topic_heading, add_numbered_item, add_signature_block,
+            add_catatan_kaki_etika,
         )
     except ImportError:
         from bpkp_docx_engine import (
             add_kop_surat_table, add_surat_pengantar_metadata, add_p, add_run,
-            add_heading_2, add_topic_heading, add_numbered_item, add_signature_block
+            add_heading_2, add_topic_heading, add_numbered_item, add_signature_block,
+            add_catatan_kaki_etika,
         )
 
     # Invarian Draf BPKP: Nomor dan Tanggal jangan diisi angka/tanggal definitif, gunakan placeholder "   " (tripel spasi, penomoran oleh sekretaris)
@@ -333,3 +339,6 @@ def build_laporan_bentuk_surat(doc,
     # Blok Tanda Tangan (pada draf, tanggal cukup placeholder "   " karena diisi sekretaris)
     add_signature_block(doc, date_text=tanggal or "   ",
                         title=pejabat_jabatan, name=pejabat_nama)
+
+    if catatan_etika:
+        add_catatan_kaki_etika(doc, kanal_pengaduan=kanal_pengaduan)
