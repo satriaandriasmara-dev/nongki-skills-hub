@@ -30,7 +30,7 @@ Baca [Panduan Standar IIA](references/standar-iia.md) untuk kerangka struktural 
 
 ## 1. Prinsip Kualitas Komunikasi (IIA)
 
-Setiap teks laporan yang dihasilkan wajib memenuhi 6 karakteristik:
+Setiap teks laporan yang dihasilkan wajib memenuhi 7 karakteristik komunikasi efektif (Global Internal Audit Standards, Standard 11.2):
 
 | Prinsip | Penerapan |
 |---|---|
@@ -39,6 +39,7 @@ Setiap teks laporan yang dihasilkan wajib memenuhi 6 karakteristik:
 | **Jelas** | Bahasa formal Indonesia, hindari jargon yang tidak perlu. Singkatan dieja lengkap pada kemunculan pertama. |
 | **Ringkas** | Langsung ke pokok masalah. Satu paragraf = satu ide utama. Hindari pengulangan. |
 | **Konstruktif** | Nada membantu perbaikan, bukan menyalahkan. Rekomendasi berorientasi solusi. |
+| **Lengkap** | Memuat semua informasi yang dibutuhkan pembaca untuk memahami temuan dan menindaklanjuti rekomendasi (tujuan, lingkup, temuan 5C, simpulan, rekomendasi). |
 | **Tepat Waktu** | Sajikan informasi yang relevan dengan periode pengawasan yang sedang berjalan. |
 
 ## 2. Struktur Dokumen: Tidak Baku, Bervariasi
@@ -712,10 +713,12 @@ Agar batas kiri tabel temuan sejajar lurus (*flush*) dengan indentasi teks naras
 
 ---
 
-### 12.4 Standar Format Tabel BPKP (Clean Open-Table Style)
+### 12.4 Preset Format Tabel (Clean Open-Table Style)
+
+> [!note] Peraturan BPKP 4/2026 tidak mengatur garis tabel. Gaya terbuka ini adalah preset tabel yang dibuat engine/skill; tabel pada templat atau contoh resmi (mis. tabel personel Surat Tugas, pakta integritas, formulir) tetap berkotak seperti aslinya.
 
 Tabel dalam laporan BPKP disajikan secara bersih, rapi, dan profesional dengan kaidah:
-- **Borders:** Hanya menggunakan garis horizontal (Top, Bottom, dan garis pemisah header) tipis single border (`sz="4"`, warna abu-abu `#B0B0B0` atau hitam `#000000`). **DILARANG menggunakan border vertikal** (Left, Right, InsideV diset `val="none"`).
+- **Borders:** Hanya menggunakan garis horizontal (Top, Bottom, dan garis pemisah header) tipis single border (`sz="4"`, warna abu-abu `#B0B0B0` atau hitam `#000000`). Tanpa border vertikal (Left, Right, InsideV diset `val="none"`) pada tabel buatan engine.
 - **Cell Padding (Margin Sel):** Top/Bottom: 100 dxa (~5 pt), Left/Right: 150 dxa (~7.5 pt) agar teks tidak menempel ketat pada garis border.
 - **Header Baris:** Background shading abu-abu muda (`#F2F2F2` atau `#E6E6E6`), Font Arial 10 pt Bold, Center/Left aligned, Vertically centered.
 - **Isi Tabel:** Font Arial 10 pt Regular. Kolom Angka/Realisasi rata kanan (*Right-aligned*), Kolom No rata tengah (*Center*), Kolom Uraian rata kiri/justified.

@@ -564,9 +564,10 @@ def generate_document(template_key: str,
     konseptor = payload.get("konseptor", "2")
     kd_naskah = tpl_info.get("kode_naskah", "ND")
 
-    # Kode keamanan (SR/R/T) hanya untuk surat dinas; Biasa ("S" di referensi) tanpa kode.
+    # Kode keamanan (SR/R/T); Biasa tanpa kode (dicatat "B" pada pengendalian naskah masuk,
+    # dulu ditulis "S" di skill ini).
     kd_keamanan = str(payload.get("kode_keamanan") or "").strip().upper()
-    if kd_keamanan in ("S", "BIASA"):
+    if kd_keamanan in ("B", "S", "BIASA"):
         kd_keamanan = ""
     # Urutan segmen mengikuti baris nomor templat resmi; Format 2 umum hanya bila templat
     # tidak memuat pola nomor yang dikenali.
@@ -577,9 +578,9 @@ def generate_document(template_key: str,
     if formatted_nomor and kd_keamanan and "keamanan" not in pattern.lower():
         print(f"Peringatan: templat '{key}' tidak memuat kode keamanan; kode_keamanan diabaikan.", file=sys.stderr)
     if not formatted_nomor:
-        formatted_nomor = f"{kd_arsip}/{kd_naskah}-{no_urut}/{kd_unit}/{konseptor}/{thn}"
-        if kd_keamanan:
-            formatted_nomor = f"{kd_keamanan}/{formatted_nomor}"
+        # Format 2 umum: kode keamanan sesudah kode klasifikasi arsip (Perban 4/2026 II.B.2.b).
+        arsip_keamanan = f"{kd_arsip}/{kd_keamanan}" if kd_keamanan else kd_arsip
+        formatted_nomor = f"{arsip_keamanan}/{kd_naskah}-{no_urut}/{kd_unit}/{konseptor}/{thn}"
     if payload.get("nomor_lengkap"):
         formatted_nomor = payload["nomor_lengkap"]
 

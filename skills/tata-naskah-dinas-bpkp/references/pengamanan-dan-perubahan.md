@@ -24,7 +24,7 @@ Hak akses terhadap Naskah Dinas diberikan kepada pihak yang berwenang sebagaiman
 
 ### Media rekam elektronik (BAB IV-B.1)
 1. **Kode derajat klasifikasi dan akses** -- lihat tabel di atas.
-2. **Tanda tangan elektronik** -- sertifikat BSrE berlaku 2 tahun; perbarui sebelum habis masa berlaku. Menggantikan tanda tangan basah dan cap dinas; dicantumkan kalimat "Ditandatangani secara elektronik oleh" + kode QR.
+2. **Tanda tangan elektronik** -- memakai Sertifikat Elektronik dari Penyelenggara Sertifikasi Elektronik yang diakui pemerintah (masa berlaku dan pembaruan mengikuti ketentuan penyelenggara, mis. BSrE; tidak diatur dalam Peraturan 4/2026). Menggantikan tanda tangan basah dan cap dinas; dicantumkan kalimat "Ditandatangani secara elektronik oleh" + kode QR.
 3. **Enkripsi** -- naskah elektronik berklasifikasi **Sangat Rahasia dan Rahasia wajib dienkripsi** (plaintext → ciphertext; tidak terbaca tanpa dekripsi).
 4. **Security printing** -- untuk naskah fisik yang memerlukan perlindungan khusus.
 
@@ -48,7 +48,7 @@ Hak akses terhadap Naskah Dinas diberikan kepada pihak yang berwenang sebagaiman
 
 1. **Asas jenis sama**: naskah bersifat mengatur yang diubah/dicabut/dibatalkan harus diubah/dicabut/dibatalkan dengan naskah dinas **sama jenisnya**. Peraturan BPKP hanya dapat diubah/dicabut/dibatalkan dengan Peraturan BPKP juga.
 2. **Wewenang**: penentuan perubahan/pencabutan/pembatalan adalah hak pejabat yang menandatangani naskah tersebut **atau pejabat yang lebih tinggi kedudukannya**.
-3. **Ralat**: kesalahan kecil (salah ketik dsb.) dapat diralat oleh pejabat penanda tangan **atau pejabat setingkat lebih rendah**.
+3. **Ralat**: kekeliruan kecil (salah ketik dsb.) dilaksanakan oleh pejabat penanda tangan, atau dapat dilimpahkan kepada pejabat di bawahnya **menggunakan atas nama (a.n.) pejabat yang melimpahkan**; ralat dinyatakan dalam naskah dinas yang baru.
 
 ## 6. Pemantauan dan Evaluasi (Pasal 11 -- BARU)
 

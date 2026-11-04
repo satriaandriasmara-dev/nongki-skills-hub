@@ -14,57 +14,70 @@ Kewenangan = hak pejabat mengambil keputusan/tindakan dalam menjalankan tugas ke
 
 Kewenangan menandatangani Naskah Dinas kepada pihak luar BPKP yang bersifat **kebijakan/keputusan/arahan**: Kepala BPKP, dapat didelegasikan/dilimpahkan ke JPT Madya. Naskah yang tidak bersifat kebijakan/keputusan/arahan dapat didelegasikan/dilimpahkan ke pimpinan unit kerja/pejabat lain sesuai matriks.
 
-## 2. Tabel III.1 — Matriks Kewenangan Penandatanganan Naskah Dinas (32 Jenis)
+## 2. Tabel III.1 — Matriks Kewenangan Penandatanganan Naskah Dinas
 
-Legenda: KBP = Kepala BPKP; WKP = Wakil Kepala BPKP (BARU); JPT-M = JPT Madya; JPT-P = JPT Pratama; ADM = Administrator/Koordinator; SUB = Subkoor; KPA = Kuasa Pengguna Anggaran; PPK = Pejabat Pembuat Komitmen; PBJ = Pembuat Komitmen Pengadaan Barang/Jasa; JF = Staf/Jabatan Fungsional. Tanda (*) khusus pejabat pengawas pada Inspektorat, Pusat Informasi Pengawasan, dan Pusat Pembinaan Jabatan Fungsional Auditor. (**) hanya untuk naskah pengadaan barang/jasa & keuangan. (***) Naskah Dinas tanpa kop dan cap unit kerja.
+Disalin dari Tabel III.1 Peraturan BPKP 4/2026 (hlm. 51–53), 10 kolom penanda tangan. Kolom "Administrator/Koordinator" dan "Pengawas/Subkoor" masing-masing satu kolom.
 
-| No | Jenis Naskah | KBP | WKP | JPT-M | JPT-P | ADM | Koor | Sub | KPA | PPK | PBJ | JF |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | Peraturan | v | - | - | - | - | - | - | - | - | - | - |
-| 2 | Instruksi | v | - | - | - | - | - | - | - | - | - | - |
-| 3 | Surat Edaran | v | v | v | - | - | - | - | - | - | - | - |
-| 4 | SOP | - | - | v | - | - | - | - | - | - | - | - |
-| 5 | Keputusan | v | - | v | v | - | - | v | - | - | - | - |
-| 6 | Surat Perintah/Surat Tugas | v | v | v | v | - | - | v | - | - | - | - |
-| 7 | Nota Dinas | v | v | v | v | v | v* | v | v | v | v | - |
-| 8 | Memorandum | v | v | v | v | v | v* | - | - | - | - | - |
-| 9 | Disposisi | v | v | v | v | v | v | - | - | - | - | - |
-| 10 | Undangan Internal | v | v | v | v | - | - | v | v | v | - | - |
-| 11 | Surat Dinas | v | v | v | v | - | - | v | v | v | - | - |
-| 12 | Dokumentasi Pengawasan | - | - | - | v | v*** | - | - | - | - | - | v*** |
-| 13 | Pedoman | v | - | v | - | - | - | - | - | - | - | - |
-| 14 | Panduan Teknis Pengawasan | - | - | v | - | - | - | - | - | - | - | - |
-| 15 | Petunjuk Pelaksanaan/Teknis | v | - | v | - | - | - | - | - | - | - | - |
-| 16 | Laporan Hasil Pengawasan | v | - | v | v | - | - | - | - | - | - | - |
-| 17 | Laporan Penunjang Pengawasan | v | v | v | v | v | v | v | v | v | - | - |
-| 18a | MoU Dalam Negeri | v | v | v | v | - | - | - | - | - | - | - |
-| 18b | MoU Luar Negeri | v | v | - | - | - | - | - | - | - | - | - |
-| 19a | Surat Perjanjian Dalam Negeri | v | v | v | v | - | - | - | - | - | - | - |
-| 19b | Surat Perjanjian Luar Negeri | v | v | - | - | - | - | - | - | - | - | - |
-| 20 | Berita Acara | v | v | v | v | v | v | v | v | v | v*** | - |
-| 21 | Surat Kuasa | v | v | v | v | - | - | - | - | - | - | - |
-| 22 | Surat Keterangan | v | v | v | v | v | v* | - | - | - | - | - |
-| 23 | Surat Pengantar Naskah/Barang | - | - | v | v | v | v* | - | - | - | - | - |
-| 24a | Pengumuman Internal | v | v | v | v | v | - | - | - | - | - | - |
-| 24b | Pengumuman Eksternal | v | - | - | - | - | - | v | v | v | - | - |
-| 25 | Surat Peringatan | v | v | v | v | v | v | - | - | - | - | - |
-| 26 | Surat Pernyataan | v | v | v | v | v | v | - | - | - | - | - |
-| 27 | Notula/Risalah | - | - | - | v | v | v | - | - | - | v*** | - |
-| 28 | Telaah Staf | - | - | - | - | v | v | - | - | - | v*** | - |
-| 29 | Sertifikat (Fungsi Diklat, kolom materi) | v | v | v | v | v | - | - | - | - | - | - |
-| 30 | Piagam Penghargaan | v | v | v | v | - | - | - | - | - | - | - |
-| 31 | Kerangka Acuan Kerja | - | - | - | v | v | - | - | - | - | - | - |
-| 32 | Formulir (sesuai jenis formulir) | v | v | v | v | v | v | v | v | v | v | - |
+| No | Jenis Naskah Dinas | Kepala | Wakil Kepala | JPT Madya | JPT Pratama | Administrator/ Koordinator | Pengawas/ Subkoor | KPA/Barang** | PPK** | PBJ** | Staf/JF*** |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Peraturan | v | - | - | - | - | - | - | - | - | - |
+| 2 | Instruksi | v | - | - | - | - | - | - | - | - | - |
+| 3 | Surat Edaran | v | v | v | - | - | - | - | - | - | - |
+| 4 | Standar Operasional Prosedur | - | - | v | - | - | - | - | - | - | - |
+| 5 | Keputusan | v | - | v | v | - | - | v | - | - | - |
+| 6 | Surat Perintah/Surat Tugas | v | v | v | v | - | - | v | - | - | - |
+| 7 | Nota Dinas | v | v | v | v | v | v* | v | v | v | - |
+| 8 | Memorandum | v | v | v | v | v | v* | - | - | - | - |
+| 9 | Disposisi | v | v | v | v | v | v | - | - | - | - |
+| 10 | Undangan Internal | v | v | v | v | - | - | v | v | v | - |
+| 11 | Surat Dinas | v | v | v | v | - | - | v | v | v | - |
+| 12 | Dokumentasi Pengawasan | - | - | - | v | v*** | - | - | - | - | v*** |
+| 13 | Pedoman | v | - | v | - | - | - | - | - | - | - |
+| 14 | Panduan Teknis Pengawasan | - | - | v | - | - | - | - | - | - | - |
+| 15 | Petunjuk Pelaksanaan/Teknis | v | - | v | - | - | - | - | - | - | - |
+| 16 | Laporan Hasil Pengawasan | v | - | v | v | - | - | - | - | - | - |
+| 17 | Laporan Penunjang Pengawasan | v | v | v | v | v | v | v | v | v | - |
+| 18a | Nota Kesepahaman Dalam Negeri | v | v | v | v | - | - | - | - | - | - |
+| 18b | Nota Kesepahaman Luar Negeri | v | v | - | - | - | - | - | - | - | - |
+| 19a | Surat Perjanjian Dalam Negeri | v | v | v | v | - | - | - | - | - | - |
+| 19b | Surat Perjanjian Luar Negeri | v | v | - | - | - | - | - | - | - | - |
+| 20 | Berita Acara | v | v | v | v | v | v | v | v | v | v*** |
+| 21 | Surat Kuasa | v | v | v | v | - | - | - | - | - | - |
+| 22 | Surat Keterangan | v | v | v | v | v | v* | - | - | - | - |
+| 23 | Surat Pengantar Naskah/Barang | - | - | v | v | v | v* | - | - | - | - |
+| 24a | Pengumuman Internal | v | v | v | v | v | - | - | - | - | - |
+| 24b | Pengumuman Eksternal | v | - | - | - | - | - | v | v | v | - |
+| 25 | Surat Peringatan | v | v | v | v | v | v | - | - | - | - |
+| 26 | Surat Pernyataan | v | v | v | v | v | v | - | - | - | - |
+| 27 | Notula/Risalah | - | - | - | v | v | v | - | - | - | v*** |
+| 28 | Telaah Staf | - | - | - | - | v | v | - | - | - | v*** |
+| 29 | Sertifikat | v | v | v | v | v<sup>1</sup> | - | - | - | - | - |
+| 30 | Piagam Penghargaan | v | v | v | v | - | - | - | - | - | - |
+| 31 | Kerangka Acuan Kerja | - | - | - | v | v | - | - | - | - | - |
+| 32 | Formulir (sesuai jenis formulir) | v | v | v | v | v | v | v | v | v | v |
 
-## 3. Tabel III.2 — Matriks Kewenangan Penandatanganan Naskah Dinas yang Ditujukan ke Instansi di Luar BPKP (BARU)
+Keterangan (sesuai peraturan):
+- `*` berlaku untuk pejabat pengawas pada Inspektorat, Pusat Informasi Pengawasan, dan Pusat Pembinaan Jabatan Fungsional Auditor.
+- `**` hanya untuk naskah dinas yang berkaitan dengan pengadaan barang/jasa serta keuangan, misalnya Surat Penunjukan Penyedia Barang/Jasa (SPPBJ), surat permintaan penilaian BMN kepada KPKNL (melalui KPA bila disyaratkan), dan surat undangan klarifikasi/pembuktian kualifikasi (pengadaan langsung).
+- `***` naskah dinas diterbitkan tanpa kop dan cap unit kerja.
+- <sup>1</sup> Sertifikat oleh Administrator/Koordinator: fungsi pendidikan dan pelatihan, untuk kolom materi.
 
-Peraturan 4/2026 menambahkan **Tabel III.2** yang eksplisit mengatur kewenangan penandatanganan Naskah Dinas keluar BPKP dengan prinsip kesetaraan jabatan (dapat dikecualikan dengan pertimbangan kepraktisan, praktik berlaku, efektivitas koordinasi, kepatutan, dan hubungan kelembagaan):
+## 3. Tabel III.2 — Matriks Kewenangan Penandatanganan Naskah Dinas ke Instansi di Luar BPKP
 
-| Pejabat Penanda Tangan BPKP | Kepala/Wakil Kepala BPKP | JPT Madya | JPT Pratama | Administrator | Pengawas/Koordinator | KPA | PBJ | Jabatan Fungsional |
-|---|---|---|---|---|---|---|---|---|
-| Presiden/Wakil Presiden, Ketua MPR/DPR/MA/MK/KY/BPK, Jaksa Agung, Menteri/Kepala Lembaga | v (KBP) | - | - | - | - | - | - | - |
-| Eselon I Instansi Pusat | v (KBP, WKP) | v (Sesma, Deputi, Direktur/Kepala Biro, Kepala Pusat) | v (Direktur/Kepala Biro, Kepala Pusat, Kepala Perwakilan, Inspektur) | v (Direktur/Kepala Biro, Kepala Pusat, Kepala Perwakilan, Inspektur) | v (Direktur/Kepala Biro, Kepala Pusat, Kepala Perwakilan, Inspektur) | v (Direktur/Kepala Biro, Kepala Pusat, Kepala Perwakilan, Inspektur) | v (Direktur/Kepala Biro, Kepala Pusat, Kepala Perwakilan, Inspektur) | v (Direktur/Kepala Biro, Kepala Pusat, Kepala Perwakilan, Inspektur) |
-| Eselon I Instansi Daerah, Kepala Daerah, Eselon II Instansi Pusat/Daerah, Pejabat di Bawah Eselon II | v (semua pejabat BPKP di atas) | v (semua pejabat BPKP di atas) | v (semua pejabat BPKP di atas) | v (semua pejabat BPKP di atas) | v (semua pejabat BPKP di atas) | v (semua pejabat BPKP di atas) | v (semua pejabat BPKP di atas) | v (semula pejabat BPKP di atas) |
+Prinsip kesetaraan jabatan; dapat dikecualikan dengan mempertimbangkan kepraktisan pelaksanaan tugas, praktik yang berlaku, efektivitas koordinasi, serta kepatutan dan hubungan kelembagaan. Disalin dari Tabel III.2 (hlm. 54); hanya delapan jabatan berikut yang tercantum sebagai penanda tangan.
+
+| Penanda tangan / pejabat yang dituju | Presiden/ Wapres | Ketua MPR/ DPR | Ketua MA/ MK/ KY | Ketua/ Anggota BPK | Jaksa Agung | Menteri/ Kepala Lembaga | Wamen/ Wakil Kepala Lembaga | Kepala Pemerintah Daerah | Eselon I Instansi Pusat | Eselon I Instansi Daerah | Eselon II Instansi Pusat | Eselon II Instansi Daerah | Di Bawah Eselon II |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Kepala | v | v | v | v | v | v | v | v | v | v | v | v | v |
+| Wakil Kepala | - | - | - | - | - | - | v | v | v | v | v | v | v |
+| Sekretaris Utama | - | - | - | - | - | - | - | v | v | v | v | v | v |
+| Deputi | - | - | - | - | - | - | - | v | v | v | v | v | v |
+| Direktur/Kepala Biro | - | - | - | - | - | - | - | v | v | v | v | v | v |
+| Kepala Pusat | - | - | - | - | - | - | - | v | v | v | v | v | v |
+| **Kepala Perwakilan** | - | - | - | - | - | - | - | v | **-** | v | v | v | v |
+| Inspektur | - | - | - | - | - | - | - | v | v | v | v | v | v |
+
+> [!important] Kepala Perwakilan tidak tercantum berwenang menandatangani naskah dinas kepada **Pejabat Eselon I Instansi Pusat**; naskah semacam itu ditandatangani pejabat yang lebih tinggi sesuai tabel.
 
 ## 4. Pelimpahan Wewenangan (BAB III-B)
 
@@ -87,6 +100,6 @@ Pelimpahan dilakukan melalui dua mekanisme:
 ## 5. Tanda Tangan Elektronik (TTE) & Cap Dinas
 
 - TTE terdiri atas informasi elektronik yang dilekatkan/terasosiasi/terkait dengan informasi elektronik lain, dipakai sebagai alat verifikasi dan autentikasi.
-- Sertifikat Elektronik (BSrE) berlaku **dua tahun** sejak diterbitkan dan dapat diperbarui; permohonan pembaruan mengikuti syarat/ketentuan SOP terkait sebelum masa berlaku habis.
+- TTE memakai Sertifikat Elektronik dari Penyelenggara Sertifikasi Elektronik yang diakui pemerintah (Peraturan 4/2026 BAB IV-B.1). Masa berlaku dan pembaruan sertifikat mengikuti ketentuan penyelenggara (mis. BSrE) dan SOP terkait; tidak diatur dalam Peraturan 4/2026.
 - Penggunaan TTE menggantikan tanda tangan basah dan cap dinas; pada dokumen TTE dicantumkan kalimat "Ditandatangani secara elektronik oleh" dan kode QR.
 - **Cap dinas** hanya digunakan untuk surat dinas dengan tanda tangan basah.

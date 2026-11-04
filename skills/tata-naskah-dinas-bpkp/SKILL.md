@@ -88,8 +88,9 @@ TENTANG
 
 **Format 2 -- Dengan kode jenis** (untuk naskah dinas selain di atas):
 ```
-[kode keamanan] / [kode klasifikasi arsip] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
+[kode klasifikasi arsip] / [kode keamanan] / [kode jenis] - [nomor urut] / [kode unit penanda tangan] / [kode konseptor] / [tahun]
 ```
+Kode keamanan diletakkan **setelah** kode klasifikasi arsip dan dihilangkan untuk naskah Biasa (Peraturan BPKP 4/2026 Bagian II.B.2.b); beberapa templat juga tanpa kode konseptor (lihat format surat dinas).
 
 **Surat dinas** (Surat Dinas, Surat Dinas Kepala/Waka, Surat Pengantar Penugasan) mengikuti templat resmi, dengan kode keamanan sesudah kode klasifikasi arsip dan tanpa kode konseptor:
 ```
@@ -304,7 +305,9 @@ Sumber: [Instansi], [Tahun]
 ```
 Dicetak miring (*Italic*), Arial 9 pt.
 
-### 6.5 Standar Tabel Naskah Dinas BPKP (Clean Open-Table Style)
+### 6.5 Preset Tabel (Clean Open-Table Style)
+> [!note] Peraturan BPKP 4/2026 tidak mengatur garis tabel. Gaya terbuka ini adalah preset tabel yang dibuat engine/skill; tabel pada templat atau contoh resmi (mis. tabel personel Surat Tugas, pakta integritas, formulir) tetap berkotak seperti aslinya.
+
 - Garis border **hanya horizontal** (Top, Bottom, Header separator `sz="4"`, warna `#B0B0B0` atau `#000000`), **tanpa border vertikal** (*Left, Right, InsideV = none*).
 - Header row shading abu-abu lembut (`#F2F2F2`), Font Arial 10 pt Bold, Center/Left aligned, Vertically centered.
 - Padding sel: Atas/Bawah 100 dxa (~5 pt), Kiri/Kanan 150 dxa (~7.5 pt).
@@ -427,7 +430,7 @@ Pakta Integritas merupakan komitmen etika dan integritas tim sebelum melaksanaka
   - Tipografi: Arial konsisten (Judul 13pt bold, Subjudul/Isi 10.5–11pt spasi 1.15, Tabel TTD 10pt spasi 1.0).
   - Poin Komitmen: 7 butir komitmen integritas menggunakan penomoran multilevel native Word (`<w:numPr>`) dengan *hanging indent* rapi.
 - **Tabel Penandatangan Tim (Struktur Berjenjang):**
-  - Menggunakan format tabel dinas tanpa garis vertikal (*clean table*, garis pembatas horizontal tipis).
+  - Mengikuti format tabel pada templat/contoh KM yang dipakai (berkotak bila contohnya berkotak); gaya tanpa garis vertikal hanya preset.
   - Memuat seluruh peran tim: Penanggung Jawab, Pengendali Mutu/Teknis (Dalnis), Ketua Tim, dan Anggota Tim lengkap dengan NIP.
 
 ### 8.2 Formulir Kendali Mutu Pengawasan (Format KM 4, KM 5, KM 6)
