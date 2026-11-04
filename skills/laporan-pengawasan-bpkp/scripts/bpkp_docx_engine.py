@@ -17,6 +17,7 @@ audit investigasi, dll.) cukup mengimpor fungsi-fungsi di sini.
 from __future__ import annotations
 
 import os
+import re
 from typing import Optional, List, Tuple
 
 import docx
@@ -434,7 +435,9 @@ def create_document() -> _Doc:
     """
     Buat dokumen Word kosong dengan setup standar BPKP:
     - Kertas A4 (21x29.7 cm)
-    - Margin: kiri 3 cm, kanan 2 cm, atas 2 cm, bawah 2 cm
+    - Margin: kiri 3 cm, kanan 2 cm, atas 2 cm, bawah 2,5 cm (batas minimum ruang tepi
+      Peraturan BPKP 4/2026 Bagian II.E: bawah >= 25 mm, kiri >= 30 mm, kanan >= 20 mm,
+      atas >= 20 mm tanpa kop)
     - Font Arial 12pt, spasi 1.15 (default)
     - Heading styles untuk navigasi
     - Infrastruktur multilevel numbering
@@ -448,7 +451,7 @@ def create_document() -> _Doc:
         s.left_margin = Cm(3.0)
         s.right_margin = Cm(2.0)
         s.top_margin = Cm(2.0)
-        s.bottom_margin = Cm(2.0)
+        s.bottom_margin = Cm(2.5)
 
     normal = doc.styles['Normal']
     _ensure_style_font(normal)
@@ -501,12 +504,15 @@ def add_p(doc, text="", space_before=Pt(0), space_after=Pt(6), line_spacing=1.15
         tabs = parse_xml(f'<w:tabs {nsdecls("w")}><w:tab w:val="left" w:pos="{tab_pos_dxa}"/></w:tabs>')
         pPr.append(tabs)
     if text:
-        if parse_markdown and ('*' in text or '<i>' in text or '<b>' in text or '<em>' in text) and not bold and not italic:
-            add_runs_with_markdown(p, text, default_bold=bold, default_italic=italic, color=color, size=size)
+        if parse_markdown:
+            add_run(p, text, bold=bold, italic=italic, color=color, size=size)
         else:
             r = p.add_run(text)
             _apply_font(r, bold=bold, italic=italic, color=color, size=size)
     return p
+
+
+_MARKDOWN_MARKERS = re.compile(r'\*[^*\n]+\*|<(?:b|i|em)>')
 
 
 def add_runs_with_markdown(p, text: str, default_bold: bool = False,
@@ -514,10 +520,11 @@ def add_runs_with_markdown(p, text: str, default_bold: bool = False,
     """
     Konversi teks yang memuat penanda markdown (*miring*, **tebal**) atau tag HTML (<i>, <b>, <em>)
     menjadi run OpenXML native dengan font Arial. Mencegah kebocoran tanda bintang (*asterisk leak*).
+    Mengembalikan daftar run yang dibuat.
     """
-    import re
     pattern = re.compile(r'(\*\*.*?\*\*|\*.*?\*|<b>.*?</b>|<i>.*?</i>|<em>.*?</em>)')
     tokens = pattern.split(text)
+    runs = []
     for token in tokens:
         if not token:
             continue
@@ -541,6 +548,8 @@ def add_runs_with_markdown(p, text: str, default_bold: bool = False,
             is_i = True
         r = p.add_run(content)
         _apply_font(r, bold=is_b, italic=is_i, color=color, size=size)
+        runs.append(r)
+    return runs
 
 
 def add_runs_with_italic(p, text: str, bold: bool = False, color=BLACK, size=Pt(12)):
@@ -552,7 +561,17 @@ def add_runs_with_italic(p, text: str, bold: bool = False, color=BLACK, size=Pt(
 
 
 def add_run(p, text, bold=False, italic=False, color=BLACK, size=Pt(12)):
-    """Tambahkan run (segment teks) ke sebuah paragraf dengan font Arial."""
+    """
+    Tambahkan run (segment teks) ke sebuah paragraf dengan font Arial.
+    Penanda *miring*, **tebal**, <i>, <b>, <em> dari teks agent diubah menjadi run asli
+    (bukan tanda bintang literal) di semua builder yang memakai fungsi ini; run terakhir
+    dikembalikan.
+    """
+    if text and _MARKDOWN_MARKERS.search(text):
+        runs = add_runs_with_markdown(p, text, default_bold=bold, default_italic=italic,
+                                      color=color, size=size)
+        if runs:
+            return runs[-1]
     r = p.add_run(text)
     _apply_font(r, bold=bold, italic=italic, color=color, size=size)
     return r
@@ -566,8 +585,7 @@ def add_heading_1(doc, text):
     """Heading 1 - judul BAB. Memakai style 'Heading 1' -> muncul di Navigation Panel."""
     p = doc.add_paragraph(style='Heading 1')
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run(text)
-    _apply_font(r, bold=True, size=Pt(12))
+    add_run(p, text, bold=True, size=Pt(12))
     return p
 
 
@@ -581,8 +599,7 @@ def add_heading_2(doc, text, num_id=None):
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     if num_id is not None:
         _attach_numbering(p, num_id, 0)
-    r = p.add_run(text)
-    _apply_font(r, bold=True, size=Pt(12))
+    add_run(p, text, bold=True, size=Pt(12))
     return p
 
 
@@ -596,8 +613,7 @@ def add_heading_3(doc, text, num_id=None):
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     if num_id is not None:
         _attach_numbering(p, num_id, 1)
-    r = p.add_run(text)
-    _apply_font(r, bold=True, size=Pt(12))
+    add_run(p, text, bold=True, size=Pt(12))
     return p
 
 
@@ -611,8 +627,7 @@ def add_heading_4(doc, text, num_id=None):
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     if num_id is not None:
         _attach_numbering(p, num_id, 2)
-    r = p.add_run(text)
-    _apply_font(r, bold=True, size=Pt(12))
+    add_run(p, text, bold=True, size=Pt(12))
     return p
 
 
@@ -665,8 +680,7 @@ def add_section_heading(doc, text, num_id, ilvl=0, space_before=Pt(8), space_aft
     p.paragraph_format.line_spacing = 1.15
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     _attach_numbering(p, num_id, ilvl)
-    r = p.add_run(text)
-    _apply_font(r, bold=True, size=Pt(12))
+    add_run(p, text, bold=True, size=Pt(12))
     return p
 
 
@@ -678,8 +692,7 @@ def add_topic_heading(doc, text, num_id, ilvl=1, space_before=Pt(12), space_afte
     p.paragraph_format.line_spacing = 1.15
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     _attach_numbering(p, num_id, ilvl)
-    r = p.add_run(text)
-    _apply_font(r, bold=True, size=Pt(12))
+    add_run(p, text, bold=True, size=Pt(12))
     return p
 
 
@@ -692,8 +705,7 @@ def add_numbered_item(doc, text, num_id, ilvl=2, bold=False,
     p.paragraph_format.line_spacing = 1.15
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     _attach_numbering(p, num_id, ilvl)
-    r = p.add_run(text)
-    _apply_font(r, bold=bold, size=Pt(12))
+    add_run(p, text, bold=bold, size=Pt(12))
     return p
 
 
@@ -722,8 +734,7 @@ def add_subheading(doc, prefix, text, num_id=None, ilvl=2, as_heading: bool = Tr
         p.paragraph_format.line_spacing = 1.15
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT if as_heading else WD_ALIGN_PARAGRAPH.JUSTIFY
         _attach_numbering(p, num_id, ilvl)
-        r = p.add_run(text)
-        _apply_font(r, bold=True, size=Pt(12))
+        add_run(p, text, bold=True, size=Pt(12))
         return p
     else:
         p = doc.add_paragraph(style=style_name) if style_name else doc.add_paragraph()
@@ -773,8 +784,7 @@ def add_locus(doc, number_prefix, locus_name, narrative_text, num_id=None, ilvl=
         p.paragraph_format.line_spacing = 1.15
         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         _attach_numbering(p, num_id, ilvl)
-        r = p.add_run(locus_name)
-        _apply_font(r, bold=False, size=Pt(12))
+        add_run(p, locus_name, bold=False, size=Pt(12))
 
         # Paragraf 2: narasi sejajar dengan teks ilvl
         fmt_data = _LEVEL_FMT[ilvl]
@@ -786,8 +796,7 @@ def add_locus(doc, number_prefix, locus_name, narrative_text, num_id=None, ilvl=
         p2.paragraph_format.left_indent = Inches(left_inch)
         p2.paragraph_format.first_line_indent = Inches(0)
         p2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        r2 = p2.add_run(narrative_text)
-        _apply_font(r2, bold=False, size=Pt(12))
+        add_run(p2, narrative_text, bold=False, size=Pt(12))
         return p2
     else:
         # Legacy
@@ -817,10 +826,8 @@ def add_detail_item(doc, item_prefix, item_text, bold_title="", num_id=None, ilv
         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         _attach_numbering(p, num_id, ilvl)
         if bold_title:
-            r = p.add_run(f"{bold_title}: ")
-            _apply_font(r, bold=True, size=Pt(12))
-        r2 = p.add_run(item_text)
-        _apply_font(r2, bold=False, size=Pt(12))
+            add_run(p, f"{bold_title}: ", bold=True, size=Pt(12))
+        add_run(p, item_text, bold=False, size=Pt(12))
         return p
     else:
         # Legacy
@@ -1131,7 +1138,8 @@ def add_signature_block(doc, date_text=None, title="Kepala Perwakilan,",
         f'<w:spacing {nsdecls("w")} w:after="0" w:line="276" w:lineRule="auto"/>'
     ))
     r_sub = p_sub.add_run("Ditandatangani secara elektronik oleh")
-    _apply_font(r_sub, italic=True, color=RGBColor(89, 89, 89), size=Pt(10))
+    # Perban 4/2026: miring, abu-abu tua #808080, ukuran sama dengan isi naskah.
+    _apply_font(r_sub, italic=True, color=RGBColor(0x80, 0x80, 0x80), size=Pt(12))
 
     p_sp2 = doc.add_paragraph()
     pPr_sp2 = p_sp2._p.get_or_add_pPr()
@@ -1456,8 +1464,8 @@ def add_kop_surat_table(doc, logo_path: str = "",
 
     Format Standar:
       Tabel 1 baris x 2 kolom, borderless kecuali garis bawah tebal 2.25 pt (sz=18):
-        - Kolom kiri  (3.06 cm / 86.8 pt): Logo BPKP resmi (Center, lebar 2.9 cm)
-        - Kolom kanan (13.34 cm / 378.2 pt): 5 baris teks instansi
+        - Kolom kiri  (3.6 cm): Logo BPKP resmi 32 mm x 16 mm (Perban 4/2026, kop dengan alamat)
+        - Kolom kanan (12.4 cm; total 16 cm = lebar area teks A4 margin 3/2): 5 baris teks instansi
             1. NAMA LEMBAGA      (Arial 12pt Bold, center, line 1.0, spaceBelow 1pt)
             2. UNIT KERJA         (Arial 12pt Bold, center, line 1.0, spaceBelow 3pt)
             3. Alamat jalan       (Arial 10pt Regular, center, line 1.0, spaceBelow 1pt)
@@ -1484,7 +1492,7 @@ def add_kop_surat_table(doc, logo_path: str = "",
 
     # Kolom kiri: Logo
     cell_logo = table.cell(0, 0)
-    cell_logo.width = Cm(3.06)
+    cell_logo.width = Cm(3.6)
     set_cell_margins(cell_logo, top=30, bottom=80, left=40, right=40)
     set_cell_bottom_border(cell_logo, color="000000", sz="18")
 
@@ -1498,11 +1506,11 @@ def add_kop_surat_table(doc, logo_path: str = "",
         logo_path = get_default_logo(variant="png") or get_default_logo(variant="jpg")
     if logo_path and os.path.exists(logo_path):
         r_klogo = p_klogo.add_run()
-        r_klogo.add_picture(logo_path, width=Cm(2.9))
+        r_klogo.add_picture(logo_path, width=Cm(3.2), height=Cm(1.6))
 
     # Kolom kanan: Teks instansi
     cell_ktxt = table.cell(0, 1)
-    cell_ktxt.width = Cm(13.34)
+    cell_ktxt.width = Cm(12.4)
     set_cell_margins(cell_ktxt, top=30, bottom=80, left=40, right=40)
     set_cell_bottom_border(cell_ktxt, color="000000", sz="18")
 

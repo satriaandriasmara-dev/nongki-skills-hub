@@ -32,7 +32,7 @@ NIP disimpan sebagai teks (diketik, atau dari sheet Pegawai saat nama dipilih vi
 ## Alur agent
 
 1. Baca workbook dan jalankan `generate_mpp.py <xlsx> --inspect`. Perintah menghitung ulang salinan sementara dan mengembalikan fakta, tim, Insilwas, hash input, serta total anggaran fase.
-2. Baca sumber yang dirujuk. Susun rancangan analitis menurut `risiko-tao-teo-km6.md`: Insilwas → risiko klien → TAO/TEO → program kerja/KM 6 → task dan nama pelaksana. Dahulukan rumusan TAO/TEO pusat; usulan lokal diberi status tentatif.
+2. Baca sumber yang dirujuk. Susun rancangan analitis menurut `risiko-tao-teo-km6.md`: Insilwas → risiko klien → TAO/TEO → program kerja/KM 6 → task dan nama pelaksana. Dahulukan rumusan TAO/TEO pusat; usulan lokal diberi status tentatif. Tulis seluruh teks rancangan sebagai teks biasa: penanda markdown (`*miring*`, `**tebal**`, `<i>`, `#`) ditolak preflight karena akan tercetak apa adanya di DOCX.
 3. Simpan JSON hasil kerja agent, lalu jalankan `generate_mpp.py <xlsx> --content <json> --check`. Periksa rantai hubungan, seluruh Insilwas/risiko/tujuan, serta nama dan anggaran pelaksana.
 4. Jalankan tanpa `--check`, dengan `--output-root <folder>`. Generator mengisi OOXML dari DOCX asli dan mempertahankan kop. Word merender pratinjau sebelum hasil dipublikasikan ke folder nama penugasan.
 5. Reviu visual, isi dan sumber dokumen; berikan tautan hasil kepada pengguna. Satu prompt pengguna mencakup seluruh langkah ini.

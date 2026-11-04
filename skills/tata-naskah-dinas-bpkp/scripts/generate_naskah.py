@@ -152,6 +152,17 @@ def replace_all_placeholders(doc: docx.Document, mapping: Dict[str, str]):
             replace_text_in_table(t, old_k, str_val)
 
 
+def template_kop_has_address(doc: docx.Document) -> bool:
+    """
+    True bila kop templat adalah "kop dengan logo dan alamat" (Perban 4/2026 Bagian II.C.2.b:
+    naskah arahan penugasan, korespondensi, khusus). Templat dengan "kop dengan logo tanpa
+    alamat" (II.C.2.a: arahan pengaturan/penetapan seperti Keputusan dan Surat Edaran, atau
+    yang ditentukan susunannya) hanya memuat BADAN + UNIT KERJA dan tidak boleh diberi alamat.
+    """
+    head = " ".join(p.text for p in doc.paragraphs[:7])
+    return any(k in head for k in ("(alamat)", "nomor telepon", "Website www.bpkp.go.id"))
+
+
 def apply_unit_kop_text(doc: docx.Document, profile: Dict[str, Any]):
     """
     Terapkan profil unit kerja pada format kop teks bawaan template:
@@ -248,18 +259,18 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
 
     # Sel Kiri: Logo BPKP
     cell_logo = table.cell(0, 0)
-    cell_logo.width = Cm(3.2)
+    cell_logo.width = Cm(3.6)
     p_logo = cell_logo.paragraphs[0]
     p_logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_logo.paragraph_format.space_before = Pt(0)
     p_logo.paragraph_format.space_after = Pt(4)
     if os.path.exists(logo_path):
         run_logo = p_logo.add_run()
-        run_logo.add_picture(logo_path, width=Cm(2.6))
+        run_logo.add_picture(logo_path, width=Cm(3.2), height=Cm(1.6))
 
     # Sel Kanan: Teks Instansi Resmi
     cell_text = table.cell(0, 1)
-    cell_text.width = Cm(13.3)
+    cell_text.width = Cm(12.4)
     p_text = cell_text.paragraphs[0]
     p_text.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_text.paragraph_format.space_before = Pt(0)
@@ -269,7 +280,7 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
     # Baris 1: INDUK
     r1 = p_text.add_run("BADAN PENGAWASAN KEUANGAN DAN PEMBANGUNAN\n")
     r1.font.name = "Arial"
-    r1.font.size = Pt(11)
+    r1.font.size = Pt(12)
     r1.font.bold = True
 
     # Baris 2: UNIT / PERWAKILAN
@@ -302,7 +313,7 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
     kontak = [f"Telepon: {telp}" if telp and telp != "-" else "", f"E-mail: {em}" if em else "", f"Website: {web}" if web else ""]
     r5 = p_text.add_run(" | ".join(k for k in kontak if k))
     r5.font.name = "Arial"
-    r5.font.size = Pt(8.5)
+    r5.font.size = Pt(9)
 
     # Pindahkan tabel ke awal dokumen di XML body
     doc._body._element.insert(0, table._tbl)
@@ -532,7 +543,9 @@ def generate_document(template_key: str,
 
     # 1. Tangani Kop Surat
     if tpl_info.get("has_unit_kop", False):
-        if kop_mode == "table":
+        # Tabel kop logo+alamat hanya untuk templat berkop alamat; kop tanpa alamat (Keputusan/SE
+        # JPT, BA Pembahasan, Verbal Konsep) dipertahankan dan cukup diisi nama unit kerja.
+        if kop_mode == "table" and template_kop_has_address(doc):
             insert_official_kop_table(doc, profile, _LOGO_PATH)
         else:
             apply_unit_kop_text(doc, profile)

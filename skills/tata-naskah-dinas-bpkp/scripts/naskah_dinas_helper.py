@@ -236,8 +236,8 @@ def add_kop_surat_table(doc, logo_path: str = "",
     Tambahkan kop surat (letterhead) BPKP versi tabel resmi dengan logo.
 
     Layout (tabel 1 baris x 2 kolom, borderless, dengan border bawah tebal):
-      Kolom kiri  (3.2 cm): Logo BPKP (center)
-      Kolom kanan (12.8 cm): 5 baris teks instansi
+      Kolom kiri  (3.6 cm): Logo BPKP 32 mm x 16 mm (Perban 4/2026)
+      Kolom kanan (12.4 cm; total 16 cm = lebar area teks): 5 baris teks instansi
         - Baris 1: NAMA LEMBAGA       (bold 12pt, center, line 1.0)
         - Baris 2: UNIT KERJA          (bold 12pt, center, line 1.0)
         - Baris 3: Alamat jalan        (regular 10pt, center, line 1.0)
@@ -265,7 +265,7 @@ def add_kop_surat_table(doc, logo_path: str = "",
 
     # Kolom kiri: Logo
     cell_logo = table.cell(0, 0)
-    cell_logo.width = Cm(3.2)
+    cell_logo.width = Cm(3.6)
     set_cell_margins(cell_logo, top=40, bottom=80, left=40, right=40)
     set_cell_bottom_border(cell_logo, color="000000", sz="18")
 
@@ -279,11 +279,11 @@ def add_kop_surat_table(doc, logo_path: str = "",
         logo_path = get_default_logo(variant="jpg")
     if logo_path and os.path.exists(logo_path):
         r_klogo = p_klogo.add_run()
-        r_klogo.add_picture(logo_path, width=Cm(2.9))
+        r_klogo.add_picture(logo_path, width=Cm(3.2), height=Cm(1.6))
 
     # Kolom kanan: Teks instansi
     cell_ktxt = table.cell(0, 1)
-    cell_ktxt.width = Cm(12.8)
+    cell_ktxt.width = Cm(12.4)
     set_cell_margins(cell_ktxt, top=30, bottom=80, left=40, right=40)
     set_cell_bottom_border(cell_ktxt, color="000000", sz="18")
 
