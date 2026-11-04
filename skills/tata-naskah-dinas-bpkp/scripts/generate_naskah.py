@@ -35,7 +35,7 @@ from docx.shared import Pt, Cm, Inches, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import parse_xml
-from docx.oxml.ns import nsdecls
+from docx.oxml.ns import nsdecls, qn
 
 # Path konfigurasi default
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -210,7 +210,13 @@ def insert_official_kop_table(doc: docx.Document, profile: Dict[str, Any], logo_
         # bila dibiarkan, logo lama menumpuk di atas tabel kop baru.
         for i, p in enumerate(head[:last + 1]):
             if i in kop_idx or not p.text.strip():
-                p._p.getparent().remove(p._p)
+                if p._p.xpath('./w:pPr/w:sectPr'):
+                    # Paragraf penutup section: buang isinya saja agar pengaturan halaman tetap.
+                    for child in list(p._p):
+                        if child.tag != qn('w:pPr'):
+                            p._p.remove(child)
+                else:
+                    p._p.getparent().remove(p._p)
         # Garis kop templat (shape "Straight Connector" ter-anchor di paragraf kosong sesudah kop)
         # menjadi garis ganda di bawah tabel; hapus gambarnya, pertahankan paragraf spasinya.
         for p in head[last + 1:last + 3]:
@@ -316,29 +322,44 @@ def _set_paragraph_text(paragraph, text: str):
         r.text = ""
 
 
+def _set_cell_text(cell, text: str):
+    """Tulis teks ke paragraf pertama sel dan kosongkan paragraf sisanya."""
+    if cell.paragraphs:
+        _set_paragraph_text(cell.paragraphs[0], text)
+        for extra in cell.paragraphs[1:]:
+            _set_paragraph_text(extra, "")
+
+
+def _nomor_locations(doc: docx.Document):
+    """
+    Satu-satunya pencari baris nomor templat (dipakai penyusun pola dan pengisi nomor):
+    ("P", paragraf "NOMOR ...") atau ("T", sel isian baris tabel "Nomor") yang berplaceholder.
+    """
+    for p in doc.paragraphs[:25]:
+        if re.match(r"\s*NOMOR", p.text) and _NOMOR_PLACEHOLDER.search(p.text):
+            yield "P", p
+    for table in doc.tables[:3]:
+        for row in table.rows[:4]:
+            cells = row.cells
+            if cells and cells[0].text.strip().startswith("Nomor"):
+                cell = next((c for c in cells[1:] if _NOMOR_PLACEHOLDER.search(c.text)), None)
+                if cell is not None:
+                    yield "T", cell
+
+
 def apply_nomor(doc: docx.Document, formatted_nomor: str) -> int:
     """
     Isi nomor naskah pada baris "NOMOR ..." (paragraf) atau baris tabel "Nomor :"
     yang masih memuat placeholder nomor templat. Mengembalikan jumlah lokasi terisi.
     """
     count = 0
-    for p in doc.paragraphs[:25]:
-        m = re.match(r"\s*NOMOR\s*(:?)", p.text)
-        if m and _NOMOR_PLACEHOLDER.search(p.text):
-            _set_paragraph_text(p, f"NOMOR{m.group(1)} {formatted_nomor}")
-            count += 1
-    for table in doc.tables[:3]:
-        for row in table.rows[:4]:
-            cells = row.cells
-            if not cells or not cells[0].text.strip().startswith("Nomor"):
-                continue
-            for cell in cells[1:]:
-                if _NOMOR_PLACEHOLDER.search(cell.text) and cell.paragraphs:
-                    _set_paragraph_text(cell.paragraphs[0], formatted_nomor)
-                    for extra in cell.paragraphs[1:]:
-                        _set_paragraph_text(extra, "")
-                    count += 1
-                    break
+    for kind, loc in list(_nomor_locations(doc)):
+        if kind == "P":
+            colon = re.match(r"\s*NOMOR\s*(:?)", loc.text).group(1)
+            _set_paragraph_text(loc, f"NOMOR{colon} {formatted_nomor}")
+        else:
+            _set_cell_text(loc, formatted_nomor)
+        count += 1
     return count
 
 
@@ -366,26 +387,38 @@ def apply_header_field(doc: docx.Document, label: str, value: str) -> int:
             # Lewati sel pemisah ":" bila templat memakai kolom titik dua tersendiri.
             target = next((c for c in cells[1:] if c.text.strip() != ":"), None)
             if target is not None and target.paragraphs:
-                _set_paragraph_text(target.paragraphs[0], value)
-                for extra in target.paragraphs[1:]:
-                    _set_paragraph_text(extra, "")
+                _set_cell_text(target, value)
+                count += 1
+    return count
+
+
+# Blok tanda tangan templat: "... (nama lengkap pejabat)", "... (nama pejabat)" (satu templat tanpa
+# kurung tutup) dan "..., (jabatan)" / "... (jabatan),". Satu pola per isian, bukan daftar varian.
+_SIGNER_PATTERNS = {
+    "nama_penandatangan": (re.compile(r"(?:\.{3}|…)\s*\(nama (?:lengkap )?pejabat\)?", re.IGNORECASE), "{}"),
+    "jabatan_penandatangan": (re.compile(r"(?:\.{3}|…)\s*(?:,\s*\(jabatan\)|\(jabatan\)\s*,)", re.IGNORECASE), "{},"),
+}
+
+
+def apply_signer_fields(doc: docx.Document, payload: Dict[str, Any]) -> int:
+    """Isi nama/jabatan penanda tangan bila diberikan; tanpa nilai, placeholder tetap terlihat."""
+    paragraphs = list(doc.paragraphs) + [p for t in doc.tables for r in t.rows for c in r.cells for p in c.paragraphs]
+    count = 0
+    for field, (pattern, fmt) in _SIGNER_PATTERNS.items():
+        value = payload.get(field)
+        if not value:
+            continue
+        for p in paragraphs:
+            new = pattern.sub(lambda _m: fmt.format(value), p.text)
+            if new != p.text:
+                _set_paragraph_text(p, new)
                 count += 1
     return count
 
 
 def find_nomor_pattern(doc: docx.Document) -> Optional[str]:
     """Teks baris nomor templat (paragraf "NOMOR ..." atau sel tabel "Nomor") yang masih berplaceholder."""
-    for p in doc.paragraphs[:25]:
-        if re.match(r"\s*NOMOR", p.text) and _NOMOR_PLACEHOLDER.search(p.text):
-            return p.text
-    for table in doc.tables[:3]:
-        for row in table.rows[:4]:
-            cells = row.cells
-            if cells and cells[0].text.strip().startswith("Nomor"):
-                for cell in cells[1:]:
-                    if _NOMOR_PLACEHOLDER.search(cell.text):
-                        return cell.text
-    return None
+    return next((loc.text for _, loc in _nomor_locations(doc)), None)
 
 
 # Urutan pengecekan penting: "kode klasifikasi keamanan" tidak boleh terbaca sebagai arsip.
@@ -518,8 +551,10 @@ def generate_document(template_key: str,
     konseptor = payload.get("konseptor", "2")
     kd_naskah = tpl_info.get("kode_naskah", "ND")
 
-    # Kode keamanan (SR/R/T) hanya untuk surat dinas; Biasa tanpa kode.
-    kd_keamanan = payload.get("kode_keamanan", "")
+    # Kode keamanan (SR/R/T) hanya untuk surat dinas; Biasa ("S" di referensi) tanpa kode.
+    kd_keamanan = str(payload.get("kode_keamanan") or "").strip().upper()
+    if kd_keamanan in ("S", "BIASA"):
+        kd_keamanan = ""
     # Urutan segmen mengikuti baris nomor templat resmi; Format 2 umum hanya bila templat
     # tidak memuat pola nomor yang dikenali.
     pattern = find_nomor_pattern(doc)
@@ -562,22 +597,14 @@ def generate_document(template_key: str,
         "... (unit kerja)": profile.get("nama_kantor", ""),
         "… (unit kerja)": profile.get("nama_kantor", ""),
         "... (nama jabatan)": payload.get("jabatan_penandatangan", profile.get("jabatan_kepala", "Kepala Perwakilan")),
-        "... (nama lengkap)": payload.get("nama_penandatangan", "Pejabat Penanda Tangan"),
         "(narasi muatan/isi Surat Dinas)": payload.get("isi_surat", payload.get("isi", "")),
         "(narasi muatan/isi Nota Dinas)": payload.get("isi_nota_dinas", payload.get("isi", ""))
     }
-    # Blok tanda tangan sebagian besar templat memakai "... (nama lengkap pejabat)" /
-    # "... (nama pejabat)" dan "..., (jabatan)" (bukan "(nama lengkap)"/"(nama jabatan)");
-    # diisi hanya bila diberikan agar placeholder tetap terlihat pada draf.
+    # Nama penanda tangan "(nama lengkap)" ikut pola yang sama dengan "(nama lengkap pejabat)":
+    # diisi hanya bila diberikan, tidak lagi diganti teks "Pejabat Penanda Tangan".
     for ell in ("...", "…"):
         if payload.get("nama_penandatangan"):
-            replacements[f"{ell} (nama lengkap pejabat)"] = payload["nama_penandatangan"]
-            replacements[f"{ell} (nama pejabat)"] = payload["nama_penandatangan"]
-            # Templat Surat Permintaan Data tertulis tanpa kurung tutup; diproses sesudah bentuk lengkap.
-            replacements[f"{ell} (nama pejabat"] = payload["nama_penandatangan"]
-        if payload.get("jabatan_penandatangan"):
-            replacements[f"{ell}, (jabatan)"] = payload["jabatan_penandatangan"] + ","
-            replacements[f"{ell} (jabatan),"] = payload["jabatan_penandatangan"] + ","
+            replacements[f"{ell} (nama lengkap)"] = payload["nama_penandatangan"]
 
     # Tambahkan custom mapping dari payload
     if "replacements" in payload:
@@ -593,6 +620,7 @@ def generate_document(template_key: str,
 
     # Jalankan penggantian teks placeholder
     replace_all_placeholders(doc, replacements)
+    apply_signer_fields(doc, payload)
 
     # 3. Tangani Injeksi Tabel Personil (untuk Surat Tugas)
     if "personel" in payload or "tim" in payload:
