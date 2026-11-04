@@ -46,7 +46,7 @@ def run_tests():
             "unit": "kalsel",
             "data": {
                 "nomor_urut": "77",
-                "replacements": {"Hal\t:": "Hal\t: Undangan Rapat Kerja Pimpinan"}
+                "hal": "Undangan Rapat Kerja Pimpinan"
             }
         },
         {
@@ -54,7 +54,9 @@ def run_tests():
             "unit": "jatim",
             "data": {
                 "nomor_urut": "99",
-                "replacements": {"Hal\t:": "Hal\t: Permintaan Bahan Evaluasi"}
+                "hal": "Permintaan Bahan Evaluasi",
+                "tujuan": "Kepala Dinas Pendidikan",
+                "nama_penandatangan": "Penguji Penanda Tangan"
             }
         },
         {
