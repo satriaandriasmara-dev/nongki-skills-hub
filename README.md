@@ -12,6 +12,7 @@ This repo is the **source of truth** for the skills installed via `~/.claude/ski
 | [eyd-indonesia](skills/eyd-indonesia/) | Indonesian proofreading & editing according to official EYD V (spelling, capitalization, punctuation, loanwords) | `indonesian` `eyd` `proofreading` |
 | [humanizer-indonesia](skills/humanizer-indonesia/) | Rewrite Indonesian text to sound natural, human, and contextually appropriate without changing original meaning | `indonesian` `humanizer` `naturalize` |
 | [laporan-pengawasan-bpkp](skills/laporan-pengawasan-bpkp/) | Draft, edit, and review BPKP internal audit reports (LHP/LHE/LHR) following Peraturan BPKP No. 4/2026 and IIA Global Standards; includes Python engine for automated Word (.docx) generation with multilevel numbering cascade (`A. → 1. → a. → 1)`), native Heading styles (Arial 12pt bold), 3/2/2/2.5 cm margins (left/right/top/bottom, Perban 4/2026 minimums), hanging indents, and 1.15 line pitch | `bpkp` `audit` `laporan` `5c` `iia` `peraturan-bpkp-4-2026` `docx` |
+| [reviu-laporan-bpkp](skills/reviu-laporan-bpkp/) | Review existing BPKP audit report drafts (LHE/LHP/LHR) the way a technical supervisor does: reconcile figures with KKE working papers, test 5C completeness and criteria, map every finding to a recommendation, check EYD V, tables, numbering, and PDF layout, then apply approved fixes as a new draft version; includes Python checkers for mechanical/language issues, PDF layout (orphaned headings, split words in narrow columns, split tables), and KKE/report version diffs | `bpkp` `audit` `reviu` `qa` `5c` `kke` `docx` `pdf` |
 | [tata-naskah-dinas-bpkp](skills/tata-naskah-dinas-bpkp/) | Compose, edit, and validate BPKP official naskah dinas (surat dinas, nota dinas, surat tugas, etc.) per Peraturan BPKP No. 4/2026; includes Python helpers for kop surat, nota dinas, surat tugas, lembar pengesahan, heading styles, and TTE | `bpkp` `tata-naskah-dinas` `naskah-dinas` `peraturan-bpkp-4-2026` `docx` |
 | [mpp-bpkp](skills/mpp-bpkp/) | Generate full BPKP audit planning packages (MPP / Manajemen Penugasan Pengawasan) and Surat Tugas preparation per Peraturan BPKP No. 2/2023 and No. 4/2026; fills 11–12 official DOCX templates, automates Word PDF rendering and merged preview, and includes a streamlined Excel master for flexible team assignment (up to 20 members) without private data | `bpkp` `mpp` `surat-tugas` `audit-planning` `peraturan-bpkp-2-2023` `peraturan-bpkp-4-2026` `docx` |
 | [pdf-comprehension](skills/pdf-comprehension/) | Deep PDF analysis: extracts pages as images, reads them visually, produces structured markdown summaries with visual highlights | `pdf` `analysis` `document` |
@@ -96,6 +97,10 @@ nongki-skills-hub/
     │   ├── assets/            # BPKP logo (PNG + JPG), unit_profiles.json
     │   ├── references/
     │   └── scripts/           # bpkp_docx_engine.py, lhp_builder.py
+    ├── reviu-laporan-bpkp/
+    │   ├── SKILL.md
+    │   ├── references/        # daftar-periksa.md (8-layer review checklist)
+    │   └── scripts/           # dump_docx.py, cek_mekanis.py, cek_tata_letak.py, render_pdf.ps1, banding_xlsx.py, banding_docx.py
     ├── tata-naskah-dinas-bpkp/
     │   ├── SKILL.md
     │   ├── assets/            # BPKP logo, unit_profiles.json, templates/ (46 master DOCX)
